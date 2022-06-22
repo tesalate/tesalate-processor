@@ -7,7 +7,6 @@ dotenv.config();
 const envVarsSchema = Joi.object()
   .keys({
     LOG_LEVEL: Joi.string().default('info'),
-    KEYS_TO_MASK: Joi.string().default('info'),
     NODE_ENV: Joi.string().valid('production', 'development', 'test').required(),
     MONGODB_URL: Joi.string().required().description('Mongo DB url'),
     MONGODB_VERSION: Joi.string().default('5.0.6'),
@@ -34,7 +33,6 @@ if (error) {
 export default {
   logLevel: envVars.LOG_LEVEL,
   env: envVars.NODE_ENV,
-  keysToMask: JSON.parse(envVars.KEYS_TO_MASK),
   mongoose: {
     url: envVars.MONGODB_URL + (envVars.NODE_ENV === 'test' ? '_test' : ''),
     options: {
