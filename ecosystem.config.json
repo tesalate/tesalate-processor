@@ -1,0 +1,17 @@
+{
+  "apps": [
+    {
+      "name": "processor",
+      "script": "./dist/index.js",
+      "instances": "max",
+      "autorestart": false,
+      "watch": false,
+      "time": false,
+      "merge-logs": true,
+      "env": {
+        "NODE_ENV": "production",
+        "DEBUG_HIDE_DATE": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+name: Dependabot automerge patch
+
+on: pull_request_target
+
+jobs:
+  automerge:
+    runs-on: ubuntu-latest
+    if: ${{ github.actor == 'dependabot[bot]' }}
+    steps:
+      - name: Wait for ci to succeed
+        uses: fountainhead/action-wait-for-check@v1.0.0
+        id: wait-for-ci
+        with:
+          token: ${{ secrets.DEPENDABOT_TOKEN }}
+          checkName: CI
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/checkout@v2
+      - uses: ahmadnassri/action-dependabot-auto-merge@v2
+        with:
+          target: minor
+          github-token: ${{ secrets.DEPENDABOT_TOKEN }}
