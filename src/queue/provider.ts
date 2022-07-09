@@ -1,11 +1,8 @@
 import { plainToInstance } from 'class-transformer';
 import { JobImp } from './jobs/job.definition';
-import { WelcomeEmail, VehicleDataCollection } from './jobs';
+import { VehicleDataCollection } from './jobs';
 
-export const JobDictionary = new Map([
-  [WelcomeEmail.name, WelcomeEmail],
-  [VehicleDataCollection.name, VehicleDataCollection],
-]);
+export const JobDictionary = new Map([[VehicleDataCollection.name, VehicleDataCollection]]);
 
 export const getJobInstance = (data: JobImp): JobImp => {
   const jobClass = JobDictionary.get(data.name);

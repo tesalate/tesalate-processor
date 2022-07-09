@@ -1,38 +1,16 @@
-import mongoose from 'mongoose';
-
-import mongo from './config/mongo';
-import { defaultQueue, setupBullMQProcessor } from './queue/queue';
-import { VehicleDataCollection } from './queue/jobs';
+import { mongoService } from './services';
+import { queueController } from './controllers';
+import { changeStreamService } from './services';
+import { defaultNotification } from './queue/notification';
+import { setupBullMQProcessor, defaultQueueName } from './queue/queue';
+import config from './config/config';
 import Logger from './config/logger';
-import changeStream from './config/changeStream';
 
 const logger = Logger('index');
+const { appType } = config;
 
-export const init = async function (): Promise<void> {
-  const connection = await mongo();
-  changeStream(connection);
-
-  const Schema = mongoose.Schema;
-
-  const VehicleSchema = new Schema({}, { strict: false });
-  const Vehicles = await mongoose.model('Vehicle', VehicleSchema, 'vehicles').find({});
-
-  Vehicles.forEach((vehicle) => {
-    const { _id, ...rest } = vehicle.toObject();
-    defaultQueue.add(
-      _id.toHexString(),
-      new VehicleDataCollection({
-        ...rest,
-      }),
-      {
-        repeat: {
-          every: 10 * 1000,
-        },
-        jobId: _id.toHexString(),
-        removeOnComplete: true,
-      }
-    );
-  });
+const init = async () => {
+  return await mongoService();
 };
 
 process.on('unhandledRejection', (err) => {
@@ -40,6 +18,17 @@ process.on('unhandledRejection', (err) => {
   process.exit(1);
 });
 
-init().then(() => {
-  setupBullMQProcessor();
+init().then(async () => {
+  if (!appType || appType === 'producer') {
+    logger.info('Producer starting');
+    queueController.flushQueue();
+    changeStreamService();
+    defaultNotification(defaultQueueName);
+    await queueController.seedQueue();
+  }
+
+  if (!appType || appType === 'consumer') {
+    logger.info('Consumer starting');
+    await setupBullMQProcessor();
+  }
 });

@@ -1,7 +1,7 @@
 import { Job, Worker } from 'bullmq';
 import isEmpty from 'lodash/isEmpty';
 
-import { connection, concurrency } from './config';
+import config from '../config/config';
 import { getJobInstance } from './provider';
 import { JobImp } from './jobs/job.definition';
 import Logger from '../config/logger';
@@ -9,7 +9,7 @@ import Logger from '../config/logger';
 const logger = Logger('worker');
 
 export interface WorkerReply {
-  message: string;
+  message: unknown;
 }
 
 export const defaultWorker = (queueName: string) => {
@@ -20,12 +20,12 @@ export const defaultWorker = (queueName: string) => {
       if (isEmpty(instance)) {
         throw new Error(`Unable to find Job: ${job.data.name}`);
       }
-      const returnVal = await instance.handle();
-      return { message: 'success', returnVal };
+      await instance.handle(job);
+      return { message: 'success' };
     },
     {
-      connection,
-      concurrency,
+      connection: config.redis,
+      concurrency: config.queue.workers,
       skipDelayCheck: true,
       runRetryDelay: 1000 * 3,
       settings: {

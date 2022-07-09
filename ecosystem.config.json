@@ -1,16 +1,29 @@
 {
   "apps": [
     {
-      "name": "processor",
-      "script": "./dist/index.js",
-      "instances": "max",
-      "autorestart": false,
+      "name": "producers",
+      "script": "./dist/src/index.js",
+      "instances": "1",
+      "autorestart": true,
       "watch": false,
       "time": false,
       "merge-logs": true,
       "env": {
         "NODE_ENV": "production",
-        "DEBUG_HIDE_DATE": true
+        "APP_TYPE": "producer"
+      }
+    },
+    {
+      "name": "consumer",
+      "script": "./dist/src/index.js",
+      "instances": "1",
+      "autorestart": true,
+      "watch": false,
+      "time": false,
+      "merge-logs": true,
+      "env": {
+        "NODE_ENV": "production",
+        "APP_TYPE": "consumer"
       }
     }
   ]

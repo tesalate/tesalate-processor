@@ -1,17 +1,26 @@
 import { Queue, QueueScheduler } from 'bullmq';
 import config from '../config/config';
 
-import { connection } from './config';
 import { defaultWorker } from './worker';
-import { defaultNotification } from './notification';
 
-export const defaultQueueName = config.defaultQueueName;
+export const defaultRepeatJobOpts = {
+  repeat: {
+    every: +config.queue.jobInterval * 1000,
+    skipImmediate: true,
+  },
+  removeOnComplete: true,
+  removeOnFail: true,
+};
+
+export const defaultQueueName = config.queue.defaultQueueName;
+
 export const defaultQueue = new Queue(defaultQueueName, {
-  connection,
+  connection: { ...config.redis },
   defaultJobOptions: {
     removeOnComplete: true,
+    removeOnFail: true,
     sizeLimit: 5242880,
-    attempts: 5,
+    attempts: 2,
     backoff: {
       type: 'exponential',
       delay: 1000 * 3,
@@ -21,9 +30,8 @@ export const defaultQueue = new Queue(defaultQueueName, {
 
 export async function setupBullMQProcessor(queueName: string = defaultQueueName) {
   const queueScheduler = new QueueScheduler(queueName, {
-    connection,
+    connection: { ...config.redis },
   });
   await queueScheduler.waitUntilReady();
-  await defaultNotification(queueName);
-  await defaultWorker(queueName);
+  defaultWorker(queueName);
 }

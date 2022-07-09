@@ -7,9 +7,10 @@ import isEmpty from 'lodash/isEmpty';
 const { printf, metadata, combine, json } = winston.format;
 
 const color = {
-  info: '\x1b[36m',
+  info: '\x1b[32m',
   error: '\x1b[31m',
   warn: '\x1b[33m',
+  debug: '\x1b[34m',
 };
 type T1 = keyof typeof color;
 

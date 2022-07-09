@@ -1,16 +1,17 @@
 import mongoose, { MongooseOptions } from 'mongoose';
-import config from './config';
+
+import config from '../config/config';
 import Logger from '../config/logger';
 
 const logger = Logger('mongo');
 
-const mongo = async () => {
+const mongoService = async () => {
   const { url, options } = config.mongoose;
   mongoose.connect(url, options as MongooseOptions);
   const connection = mongoose.connection;
 
-  connection.on('connected', async () => {
-    logger.info(`Connected to DB ${url}`);
+  connection.on('connected', () => {
+    logger.info(`Mongoose connected to: ${url}`);
   });
 
   connection.on('error', (err) => {
@@ -29,6 +30,5 @@ const mongo = async () => {
       process.exit(0);
     });
   });
-  return connection;
 };
-export default mongo;
+export default mongoService;

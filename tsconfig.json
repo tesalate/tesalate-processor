@@ -1,24 +1,24 @@
 {
-  "extends": "./node_modules/gts/tsconfig-google.json",
   "compilerOptions": {
-    "rootDir": ".",
-    "outDir": "dist",
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "allowSyntheticDefaultImports": true,
-    "allowJs": true,
     "target": "ESNext",
-    "module": "commonjs",
-    "lib": ["ESNext"],
+    "types": ["node", "jest", "@types/jest"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "noImplicitAny": true,
-    "removeComments": true,
-    "preserveConstEnums": true,
-    "sourceMap": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "types": ["node", "jest"]
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "lib": ["es7"],
+    "baseUrl": ".",
+    "noFallthroughCasesInSwitch": true,
+    "typeRoots": ["./node_modules/@types"],
+    "outDir": "./dist"
   },
-  "include": ["src/**/*.ts", "tests/**/*.ts"]
+  "compileOnSave": true,
+  "include": ["src/**/*", "tests/**/*", "__mocks__"],
+  "exclude": ["node_modules", "dist/**/*"]
 }
