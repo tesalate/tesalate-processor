@@ -1,0 +1,32 @@
+name: 'coverage'
+
+on:
+  pull_request:
+    branches:
+      - main
+
+env:
+  NODE_ENV: test
+  PORT: 4400
+  APP_NAME: tesalate-ci
+  PUBLIC_URL: http://localhost
+  MONGODB_URL: mongodb://localhost:27017/test
+  JWT_SECRET: thisisasamplesecret
+  JWT_ACCESS_EXPIRATION_MINUTES: 30
+  JWT_REFRESH_EXPIRATION_DAYS: 30
+  TESLA_OAUTH_V3_URL: https://auth.tesla.com/oauth2/v3
+  TESLA_OWNERAPI_CLIENT_ID: '12345'
+  TESLA_OWNERAPI_CLIENT_SECRET: '54321'
+  ACCEPTED_CORS: '["http://localhost:4400"]'
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    if: ${{ github.actor != 'dependabot[bot]' }}
+    steps:
+      - uses: actions/checkout@v1
+      - uses: ArtiomTr/jest-coverage-report-action@v2
+        with:
+          package-manager: yarn
+          annotations: failed-tests
+          test-script: yarn test:coverage

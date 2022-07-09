@@ -1,0 +1,30 @@
+{
+  "apps": [
+    {
+      "name": "producers",
+      "script": "./dist/src/index.js",
+      "instances": "1",
+      "autorestart": true,
+      "watch": false,
+      "time": false,
+      "merge-logs": true,
+      "env": {
+        "NODE_ENV": "production",
+        "APP_TYPE": "producer"
+      }
+    },
+    {
+      "name": "consumer",
+      "script": "./dist/src/index.js",
+      "instances": "1",
+      "autorestart": true,
+      "watch": false,
+      "time": false,
+      "merge-logs": true,
+      "env": {
+        "NODE_ENV": "production",
+        "APP_TYPE": "consumer"
+      }
+    }
+  ]
+}

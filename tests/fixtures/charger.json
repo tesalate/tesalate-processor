@@ -1,0 +1,214 @@
+[
+  {
+    "_id": {
+      "$oid": "5f99f5006682dc4dae846d5a"
+    },
+    "geoJSON": {
+      "type": "Point",
+      "coordinates": [10.040342, 47.880344]
+    },
+    "emails": [],
+    "location_type": ["supercharger", "standard charger"],
+    "sales_phone": [
+      {
+        "label": "Roadside Assistance",
+        "number": " +49 (0) 89 21093303",
+        "line_below": ""
+      }
+    ],
+    "address_line_1": "Am Waizenhof 12",
+    "address_line_2": "",
+    "address_notes": "",
+    "address": "Euro Rastpark Aichstetten\r\nAm Waizenhof 12 Aichstetten, 88317",
+    "amenities": "<p><strong>Restrooms</strong><br />Euro Rastpark 24/7<br />McDonald's 07.00 - 00.00</p>\r\n<p><strong>Wifi</strong><br />Paid at McDonald's</p>\r\n<p><strong>Restaurants</strong><br /> <a href=\"http://www.eurorastpark.de/\" target=\"_blank\">Euro Rastpark Restaurant & Cafe</a><br/>McDonalds</p>\r\n<p><strong>Amenities</strong><br />Euro Rastpark Convenience Store</p>",
+    "baidu_lat": "0.0000000000",
+    "baidu_lng": "0.0000000000",
+    "chargers": "<p><strong>Charging</strong><br />8 Superchargers, available 24/7, up to 150kW</p>",
+    "city": "Aichstetten",
+    "common_name": "Euro Rastpark Aichstetten",
+    "country": "Germany",
+    "destination_charger_logo": "",
+    "destination_website": "",
+    "directions_link": "https://maps.google.com/maps?daddr=47.880344,10.040342",
+    "geocode": "eaaggtctggtgaatttcga",
+    "hours": "",
+    "is_gallery": false,
+    "kiosk_pin_x": "0",
+    "kiosk_pin_y": "0",
+    "kiosk_zoom_pin_x": "0",
+    "kiosk_zoom_pin_y": "0",
+    "latitude": "47.8803440000",
+    "location_id": "aichstettensupercharger",
+    "longitude": "10.0403420000",
+    "nid": "6292",
+    "open_soon": "0",
+    "path": "/aichstettensupercharger",
+    "postal_code": "88317",
+    "province_state": "",
+    "region": "europe",
+    "sales_representative": false,
+    "sub_region": "Germany",
+    "title": "Aichstetten Supercharger",
+    "trt_id": "0",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "5f99f5006682dc4dae846d5b"
+    },
+    "geoJSON": {
+      "type": "Point",
+      "coordinates": [-73.819109, 42.710356]
+    },
+    "emails": [],
+    "location_type": ["supercharger", "standard charger"],
+    "sales_phone": [
+      {
+        "label": "Roadside Assistance",
+        "number": "(877) 798-3752",
+        "line_below": ""
+      }
+    ],
+    "address_line_1": "131 Colonie Center",
+    "address_line_2": "",
+    "address_notes": "",
+    "address": "Colonie Center\r\n131 Colonie Center\r\nAlbany, NY 12205",
+    "amenities": "<p><strong>Restrooms</strong><br />Inside Colonie Center</p>\r\n<p><strong>Wifi</strong><br />Barnes & Noble<br />Starbucks</p>\r\n<p><strong>Restaurants</strong><br />The Cheesecake Factory<br />Five Guys Burgers and Fries<br />Moe's Southwest Grill<br />P.F. Chang's China Bistro<br />Auntie Anne's Pretzels<br />The Coffee Beanery<br />Menchie's Frozen Yogurt</p>\r\n<p><strong>Amenities</strong><br /><a href=\"http://www.shopatcoloniecenter.com\" target=\"_blank\">Shopping at Colonie Center</a><br />Barnes and Noble<br />Whole Foods Market<br />Regal Cinemas</p>",
+    "baidu_lat": "0.0000000000",
+    "baidu_lng": "0.0000000000",
+    "chargers": "<p><strong>Charging</strong><br />6 Superchargers, available 24/7, up to 150kW</p>",
+    "city": "Albany",
+    "common_name": "Colonie Center",
+    "country": "United States",
+    "destination_charger_logo": "",
+    "destination_website": "",
+    "directions_link": "https://maps.google.com/maps?daddr=42.710356,-73.819109",
+    "geocode": "wcgacacttagaaaactgcg",
+    "hours": "",
+    "is_gallery": false,
+    "kiosk_pin_x": "0",
+    "kiosk_pin_y": "0",
+    "kiosk_zoom_pin_x": "0",
+    "kiosk_zoom_pin_y": "0",
+    "latitude": "42.7103560000",
+    "location_id": "albanysupercharger",
+    "longitude": "-73.8191090000",
+    "nid": "6293",
+    "open_soon": "0",
+    "path": "/albanysupercharger",
+    "postal_code": "12205",
+    "province_state": "NY",
+    "region": "north_america",
+    "sales_representative": false,
+    "sub_region": "New York",
+    "title": "Albany, NY Supercharger",
+    "trt_id": "0",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "5f99f5026682dc4dae846d5c"
+    },
+    "geoJSON": {
+      "type": "Point",
+      "coordinates": [-93.357721, 43.68606]
+    },
+    "emails": [],
+    "location_type": ["supercharger", "standard charger"],
+    "sales_phone": [
+      {
+        "label": "Roadside Assistance",
+        "number": "(877) 798-3752",
+        "line_below": ""
+      }
+    ],
+    "address_line_1": "811 E Plaza St",
+    "address_line_2": "",
+    "address_notes": "",
+    "address": "AmericInn Lodge & Suites Albert Lea",
+    "amenities": "<p><strong>Restrooms</strong><br />AmericInn (24 hr)<br />Hy-Vee (24 hr)</p>\r\n<p><strong>Wifi</strong><br />AmericInn lobby<br />Hy-Vee</p>\r\n<p><strong>Restaurants</strong><br />AmericInn lobby (24 hrs) - coffee, marketplace, etc<br />McDonald's (5AM - 11PM)<br />Applebee's(Sun-Th 11AM - 12AM, Fri-Sat 11AM - 1AM)<br />Hy-Vee Cafe<br />Caribou Coffee</p>\r\n<p><strong>Parking</strong><br />Free</p>",
+    "baidu_lat": "0.0000000000",
+    "baidu_lng": "0.0000000000",
+    "chargers": "<p><strong>Charging</strong><br />4 Superchargers, available 24/7, up to 150kW</p>",
+    "city": "Albert Lea",
+    "common_name": "AmericInn Lodge & Suites Albert Lea",
+    "country": "United States",
+    "destination_charger_logo": "",
+    "destination_website": "",
+    "directions_link": "https://maps.google.com/maps?daddr=43.68606,-93.357721",
+    "geocode": "watcccactggcttggcatt",
+    "hours": "",
+    "is_gallery": false,
+    "kiosk_pin_x": "0",
+    "kiosk_pin_y": "0",
+    "kiosk_zoom_pin_x": "0",
+    "kiosk_zoom_pin_y": "0",
+    "latitude": "43.6860600000",
+    "location_id": "albertleasupercharger",
+    "longitude": "-93.3577210000",
+    "nid": "6294",
+    "open_soon": "0",
+    "path": "/albertleasupercharger",
+    "postal_code": "56007",
+    "province_state": "MN",
+    "region": "north_america",
+    "sales_representative": false,
+    "sub_region": "Minnesota",
+    "title": "Albert Lea, MN Supercharger",
+    "trt_id": "0",
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "5f99f5026682dc4dae846d5d"
+    },
+    "geoJSON": {
+      "type": "Point",
+      "coordinates": [-85.000326, 41.699048]
+    },
+    "emails": [],
+    "location_type": ["supercharger", "standard charger"],
+    "sales_phone": [
+      {
+        "label": "Roadside Assistance",
+        "number": "(877) 798-3752",
+        "line_below": ""
+      }
+    ],
+    "address_line_1": "3855 Indiana 127",
+    "address_line_2": "",
+    "address_notes": "",
+    "address": "Ramada Angola\r\n3855 Indiana 127\r\nAngola, IN 46703",
+    "amenities": "<p><strong>Restrooms</strong><br />Ramada Angola<br />6 Autumns Food and Spirits</p>\r\n<p><strong>Wifi</strong><br />Ramada Angola</p>\r\n<p><strong>Restaurants</strong><br />6 Autumns Food and Spirits restaurant</p>\r\n<p><strong>Amenities</strong><br />6 Autumns Food and Spirits restaurant<br />Ramada convenience market at front desk</p>",
+    "baidu_lat": "0.0000000000",
+    "baidu_lng": "0.0000000000",
+    "chargers": "<p><strong>Charging</strong><br />6 Superchargers, available 24/7, up to 150kW</p>",
+    "city": "Angola",
+    "common_name": "Ramada Angola",
+    "country": "United States",
+    "destination_charger_logo": "",
+    "destination_website": "",
+    "directions_link": "https://maps.google.com/maps?daddr=41.699048,-85.000326",
+    "geocode": "wcgaaatccgagtccaggta",
+    "hours": "",
+    "is_gallery": false,
+    "kiosk_pin_x": "0",
+    "kiosk_pin_y": "0",
+    "kiosk_zoom_pin_x": "0",
+    "kiosk_zoom_pin_y": "0",
+    "latitude": "41.6990480000",
+    "location_id": "angolasupercharger",
+    "longitude": "-85.0003260000",
+    "nid": "6298",
+    "open_soon": "0",
+    "path": "/angolasupercharger",
+    "postal_code": "46703",
+    "province_state": "IN",
+    "region": "north_america",
+    "sales_representative": false,
+    "sub_region": "Indiana",
+    "title": "Angola, IN Supercharger",
+    "trt_id": "0",
+    "__v": 0
+  }
+]

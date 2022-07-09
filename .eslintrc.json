@@ -1,0 +1,7 @@
+{
+  "extends": "./node_modules/gts/",
+  "rules": {
+    "no-process-exit": "off"
+  },
+  "parserOptions": { "ecmaVersion": 13 }
+}
