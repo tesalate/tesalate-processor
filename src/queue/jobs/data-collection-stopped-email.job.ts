@@ -1,16 +1,20 @@
 import { Job } from 'bullmq';
-import Logger from '../../config/logger';
 import { JobImp, BaseJob } from './job.definition';
+import { emailController } from '../../controllers';
+import { ITeslaAccount } from '../../models/teslaAccount.model';
+import Logger from '../../config/logger';
 
 const logger = Logger('data-collection-stopped-email.job');
 
 export class DataCollectionStoppedEmail extends BaseJob implements JobImp {
-  constructor(public payload: Record<string, unknown>) {
+  constructor(public payload: ITeslaAccount) {
     super();
   }
 
-  handle = async (job: Job): Promise<void> => {
-    logger.info('JOB', job);
+  handle = async (): Promise<void> => {
+    logger.debug('processing dc stopped job');
+    await emailController.sendDataCollectionStoppedEmail(this.payload);
+    logger.debug('processed dc stopped job');
   };
 
   // all thrown errors are handled here
