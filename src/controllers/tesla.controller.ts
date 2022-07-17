@@ -14,9 +14,9 @@ const getVehicles = async (teslaAccount: Partial<ITeslaAccount>, vehicle: string
     const axiosError = error as AxiosError;
     logger.error('error getting vehicles from tesla', axiosError?.response?.data);
     if (axiosError?.response!.status >= 400 && axiosError?.response?.config.url?.includes('/token')) {
+      await emailService.sendDataCollectionStoppedEmail(teslaAccount as ITeslaAccount);
       await queueService.removeVehicleFromQueueByVehicleId(vehicle);
       await vehicleService.updateVehicleById(vehicle, { collectData: false });
-      await queueService.addEmailToQueue(teslaAccount as ITeslaAccount);
       throw new UnrecoverableError('Unrecoverable');
     }
     throw error;
@@ -34,9 +34,9 @@ const getVehicleData = async (
     const axiosError = error as AxiosError;
     logger.error('error getting vehicle data from tesla', axiosError?.response);
     if (axiosError?.response!.status >= 400 && axiosError?.response?.config.url?.includes('/token')) {
+      await emailService.sendDataCollectionStoppedEmail(teslaAccount as ITeslaAccount);
       await queueService.removeVehicleFromQueueByVehicleId(vehicle);
       await vehicleService.updateVehicleById(vehicle, { collectData: false });
-      await queueService.addEmailToQueue(teslaAccount as ITeslaAccount);
       throw new UnrecoverableError('Unrecoverable');
     }
     throw error;
