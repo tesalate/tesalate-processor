@@ -1,6 +1,7 @@
 import { IVehicle } from '../models/vehicle.model';
-import { VehicleDataCollection, DataCollectionStoppedEmail } from '../queue/jobs';
+import { ITeslaAccount } from '../models/teslaAccount.model';
 import { defaultQueue, defaultRepeatJobOpts } from '../queue/queue';
+import { VehicleDataCollection, DataCollectionStoppedEmail } from '../queue/jobs';
 
 const getJobsFromQueue = async () => {
   return await defaultQueue.getRepeatableJobs();
@@ -13,10 +14,12 @@ const addVehicleToQueue = async (id: string) => {
   });
 };
 
-const addEmailToQueue = async (id: string) => {
-  await defaultQueue.add(id, new DataCollectionStoppedEmail({ vehicle: id }), {
-    ...defaultRepeatJobOpts,
-    jobId: id,
+const addEmailToQueue = async (teslaAccount: ITeslaAccount) => {
+  await defaultQueue.add(`${teslaAccount._id}:email`, new DataCollectionStoppedEmail(teslaAccount), {
+    jobId: `${teslaAccount._id}:email`,
+    removeOnComplete: true,
+    removeOnFail: true,
+    priority: 1,
   });
 };
 

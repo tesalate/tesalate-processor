@@ -1,20 +1,18 @@
-import mongoose, { Document } from 'mongoose';
+import { Document } from 'mongoose';
 import Logger from '../config/logger';
-import { IConditioningSession } from '../models/conditioningSession.model';
 import { conditioningSessionService } from '../services';
-import { IVehicleData } from '../models/vehicleData.model';
 
 const logger = Logger('conditioningSession.controller');
 
-const createConditioningSession = async (vehicleData: Document) => {
-  try {
-    const session = await conditioningSessionService.createConditioningSession(vehicleData);
-    return session;
-  } catch (error) {
-    logger.error('error creating conditioning session', error);
-    throw error;
-  }
-};
+// const createConditioningSession = async (vehicleData: Document) => {
+//   try {
+//     const session = await conditioningSessionService.createConditioningSession(vehicleData);
+//     return session;
+//   } catch (error) {
+//     logger.error('error creating conditioning session', error);
+//     throw error;
+//   }
+// };
 
 const getConditioningSession = async (_id: string, vehicle: string) => {
   try {
@@ -37,7 +35,7 @@ const updateConditioningSession = async (_id: string | null | undefined, vehicle
 };
 
 export default {
-  createConditioningSession,
+  // createConditioningSession,
   getConditioningSession,
   updateConditioningSession,
 };
