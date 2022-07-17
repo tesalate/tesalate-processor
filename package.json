@@ -63,6 +63,7 @@
     "bullmq": "^1.86.2",
     "class-transformer": "^0.5.1",
     "dotenv": "^16.0.1",
+    "geolib": "^3.3.3",
     "ioredis": "^5.0.6",
     "is-any-type": "^0.0.4",
     "joi": "^17.6.0",

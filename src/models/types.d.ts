@@ -57,7 +57,7 @@ export interface IVehicleDataCollectionPayload extends Omit<IVehicle, '_id' | 't
   user: IUser;
 }
 
-export type IPartialTeslaAccount = Omit<ITeslaAccount, 'linked' | 'email' | 'user' | 'createdAt' | 'updatedAt'>;
+export type IPartialTeslaAccount = Omit<ITeslaAccount, 'linked' | 'email' | 'createdAt' | 'updatedAt'>;
 
 interface IJobData {
   job: Job;

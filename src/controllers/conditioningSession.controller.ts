@@ -1,12 +1,12 @@
+import mongoose, { Document } from 'mongoose';
 import Logger from '../config/logger';
 import { IConditioningSession } from '../models/conditioningSession.model';
-import mongoose from 'mongoose';
 import { conditioningSessionService } from '../services';
 import { IVehicleData } from '../models/vehicleData.model';
 
 const logger = Logger('conditioningSession.controller');
 
-const createConditioningSession = async (vehicleData: IVehicleData) => {
+const createConditioningSession = async (vehicleData: Document) => {
   try {
     const session = await conditioningSessionService.createConditioningSession(vehicleData);
     return session;
@@ -26,13 +26,9 @@ const getConditioningSession = async (_id: string, vehicle: string) => {
   }
 };
 
-const updateConditioningSession = async (
-  _id: string,
-  vehicle: string,
-  updateQuery: mongoose.UpdateQuery<IConditioningSession>
-) => {
+const updateConditioningSession = async (_id: string | null | undefined, vehicleData: Document) => {
   try {
-    const conditioningSession = await conditioningSessionService.updateConditioningSessionById(_id, vehicle, updateQuery);
+    const conditioningSession = await conditioningSessionService.updateConditioningSessionById(_id, vehicleData);
     return conditioningSession;
   } catch (error) {
     logger.error('error updating conditioning session', error);

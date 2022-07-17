@@ -28,3 +28,4 @@ WORKDIR /home/node/app
 # COPY ecosystem.config.json wait-for-it.sh ./
 COPY ecosystem.config.json ./
 COPY --from=ts-remover /home/node/app/ ./
+CMD yarn start

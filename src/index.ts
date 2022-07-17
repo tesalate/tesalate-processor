@@ -10,7 +10,20 @@ const logger = Logger('index');
 const { appType } = config;
 
 const init = async () => {
-  return await mongoService();
+  await mongoService(async () => {
+    if (!appType || appType === 'producer') {
+      logger.info('Producer starting');
+      queueController.flushQueue();
+      changeStreamService();
+      defaultNotification(defaultQueueName);
+      await queueController.seedQueue();
+    }
+
+    if (!appType || appType === 'consumer') {
+      logger.info(`Consumer starting with ${config.queue.workers} workers`);
+      await setupBullMQProcessor();
+    }
+  });
 };
 
 process.on('unhandledRejection', (err) => {
@@ -18,17 +31,4 @@ process.on('unhandledRejection', (err) => {
   process.exit(1);
 });
 
-init().then(async () => {
-  if (!appType || appType === 'producer') {
-    logger.info('Producer starting');
-    queueController.flushQueue();
-    changeStreamService();
-    defaultNotification(defaultQueueName);
-    await queueController.seedQueue();
-  }
-
-  if (!appType || appType === 'consumer') {
-    logger.info('Consumer starting');
-    await setupBullMQProcessor();
-  }
-});
+init();

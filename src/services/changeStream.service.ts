@@ -7,12 +7,12 @@ const logger = Logger('changeStream.service');
 const changeStream = () => {
   const connection = mongoose.connection;
   connection.once('open', () => {
-    logger.info('Change stream connected');
     const changeStream = Vehicle.watch([], { fullDocument: 'updateLookup' });
     changeStream.on('error', (err) => {
       logger.warn(err.message, err);
       return;
     });
+
     changeStream.on('change', async (change) => {
       switch (change.operationType) {
         case 'insert': {

@@ -1,4 +1,5 @@
 export { default as cacheService } from './cache.service';
+export { default as emailService } from './email.service';
 export { default as mongoService } from './mongo.service';
 export { default as queueService } from './queue.service';
 export { default as teslaService } from './tesla.service';

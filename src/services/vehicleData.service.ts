@@ -48,10 +48,11 @@ const createVehicleData = async (vehicleData: IVehicleData) => {
 
 const saveVehicleData = async (vehicleData: Document) => {
   logger.debug('creating vehicle data point', { _id: vehicleData._id });
-  const data = (await vehicleData.save()).toJSON();
-  logger.debug('saved vehicle data point', { _id: data._id });
-  const cacheKey = buildCacheKey(data.vehicle, '', key);
-  await cacheService.setCache(cacheKey, data, ttl);
+  const data = await vehicleData.save();
+  const dataObj = data.toJSON();
+  logger.debug('saved vehicle data point', { _id: dataObj._id });
+  const cacheKey = buildCacheKey(dataObj.vehicle, '', key);
+  await cacheService.setCache(cacheKey, dataObj, ttl);
   return data;
 };
 
@@ -63,7 +64,7 @@ const getLatestVehicleDataByVehicleId = async (vehicle: string): Promise<IVehicl
     return cachedValue as unknown as IVehicleData;
   }
   logger.debug('getting latest vehicle data point from db');
-  const data = await VehicleData.findOne({ vehicle }).sort('_id:desc').lean();
+  const data = await VehicleData.findOne({ vehicle }, {}, { sort: { _id: -1 } }).lean();
 
   if (data) {
     logger.debug('got latest vehicle data point from db', { _id: data._id });

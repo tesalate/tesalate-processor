@@ -5,13 +5,14 @@ import Logger from '../config/logger';
 
 const logger = Logger('mongo');
 
-const mongoService = async () => {
+const mongoService = async (callback: () => void) => {
   const { url, options } = config.mongoose;
   mongoose.connect(url, options as MongooseOptions);
   const connection = mongoose.connection;
 
   connection.on('connected', () => {
     logger.info(`Mongoose connected to: ${url}`);
+    callback();
   });
 
   connection.on('error', (err) => {

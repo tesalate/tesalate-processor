@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 import { cacheService } from '../services';
 import { SentrySession } from '../models';
 import { ISentrySession } from '../models/sentrySession.model';
@@ -11,14 +11,20 @@ const key = 'sentry-session';
 
 const createSentrySession = async (vehicleData: IVehicleData) => {
   const { drive_state, vehicle, user } = vehicleData;
-  return new SentrySession({
-    geoJSON: {
-      type: 'Point' as GeoJSONType,
-      coordinates: [drive_state.longitude, drive_state.latitude],
-    },
-    vehicle,
-    user,
-  });
+  const cacheKey = buildCacheKey(vehicle, '', key);
+  const session = (
+    await SentrySession.create({
+      geoJSON: {
+        type: 'Point' as GeoJSONType,
+        coordinates: [drive_state.longitude, drive_state.latitude],
+      },
+      dataPoints: [vehicleData],
+      vehicle,
+      user,
+    })
+  ).toJSON();
+  await cacheService.setCache(cacheKey, session, ttl);
+  return session;
 };
 
 const getSentrySessionById = async (_id: string, vehicle: string): Promise<ISentrySession | null> => {
@@ -35,18 +41,29 @@ const getSentrySessionById = async (_id: string, vehicle: string): Promise<ISent
   return session;
 };
 
-const updateSentrySessionById = async (
-  _id: string,
-  vehicle: string,
-  data: mongoose.UpdateQuery<ISentrySession>
-): Promise<ISentrySession | null> => {
-  const cacheKey = buildCacheKey(vehicle, _id, key);
+const updateSentrySessionById = async (_id: string | undefined | null, vehicleData: Document): Promise<ISentrySession> => {
+  const { vehicle, user, drive_state } = vehicleData.toJSON();
+  const session = await SentrySession.findOneAndUpdate(
+    { _id: _id ?? new mongoose.Types.ObjectId() },
+    {
+      $set: {
+        endDate: new Date(drive_state.timestamp),
+      },
+      $push: { dataPoints: vehicleData._id },
+      $setOnInsert: {
+        vehicle,
+        user,
+        geoJSON: {
+          type: 'Point',
+          coordinates: [drive_state.longitude, drive_state.latitude],
+        },
+      },
+    },
+    { upsert: true, new: true }
+  );
 
-  const session = await SentrySession.findOneAndUpdate({ _id: _id }, { ...data }, { upsert: true, new: true });
-
-  if (session) {
-    await cacheService.setCache(cacheKey, session, ttl);
-  }
+  const cacheKey = buildCacheKey(session.vehicle, session._id, key);
+  await cacheService.setCache(cacheKey, session, ttl);
   return session;
 };
 

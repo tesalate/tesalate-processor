@@ -8,6 +8,7 @@ const envVarsSchema = Joi.object()
   .keys({
     APP_TYPE: Joi.string().valid('consumer', 'producer', null).default(null),
     LOG_LEVEL: Joi.string().default('info'),
+    PUBLIC_URL: Joi.string().required(),
     NODE_ENV: Joi.string().valid('production', 'development', 'test').required(),
     MONGODB_URL: Joi.string().required().description('Mongo DB url'),
     MONGODB_VERSION: Joi.string().default('5.0.6'),
@@ -42,6 +43,7 @@ export default {
   appType: envVars.APP_TYPE,
   logLevel: envVars.LOG_LEVEL,
   env: envVars.NODE_ENV,
+  apiUrl: envVars.PUBLIC_URL,
   mongoose: {
     url: envVars.MONGODB_URL + (envVars.NODE_ENV === 'test' ? '_test' : ''),
     options: {

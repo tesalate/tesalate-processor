@@ -1,10 +1,10 @@
+import { Document } from 'mongoose';
 import Logger from '../config/logger';
 import { mapPointService } from '../services';
-import { IVehicleData } from '../models/vehicleData.model';
 
 const logger = Logger('mapPoint.controller');
 
-const saveMapPoint = async (vehicleData: IVehicleData) => {
+const saveMapPoint = async (vehicleData: Document) => {
   try {
     const mapPoint = await mapPointService.saveMapPoint(vehicleData);
     return mapPoint;

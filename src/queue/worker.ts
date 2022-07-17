@@ -41,7 +41,7 @@ export const defaultWorker = (queueName: string) => {
   worker.on('failed', (job: Job) => {
     const instance = getJobInstance(job.data);
     instance?.failed(job);
-    logger.info(`${job.id} has failed`);
+    logger.error(`${job.id} has failed`);
   });
   worker.on('active', async () => await worker.resume());
   worker.on('paused', async () => await worker.resume());

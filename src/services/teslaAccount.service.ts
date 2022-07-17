@@ -6,7 +6,7 @@ import { buildCacheKey } from '../utils/formatFuncs';
 
 const ttl = 60;
 const key = 'tesla-account';
-const keys = ['_id', 'access_token', 'refresh_token'];
+const keys = ['_id', 'access_token', 'refresh_token', 'user'];
 
 const getTeslaAccountById = async (_id: string, vehicle: string): Promise<Partial<ITeslaAccount> | null> => {
   const cacheKey = buildCacheKey(vehicle, _id, key);

@@ -1,13 +1,13 @@
+import { Document } from 'mongoose';
 import { MapPoint } from '../models';
 import { IMapPoint } from '../models/mapPoint.model';
 import { toFixedWithoutRounding } from '../utils/formatFuncs';
-import { IVehicleData } from '../models/vehicleData.model';
 import Logger from '../config/logger';
 
 const logger = Logger('mapPoint.service');
 
-const saveMapPoint = async (vehicleData: IVehicleData): Promise<IMapPoint | null> => {
-  const { _id, vehicle, user, drive_state } = vehicleData;
+const saveMapPoint = async (vehicleData: Document): Promise<IMapPoint | null> => {
+  const { _id, vehicle, user, drive_state } = vehicleData.toJSON();
   const { longitude, latitude } = drive_state;
 
   // create coordinates for polygon
