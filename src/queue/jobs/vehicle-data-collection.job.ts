@@ -12,8 +12,8 @@ import {
   chargeSessionController,
   sentrySessionController,
   dataCollectorController,
-  conditioningSessionController,
   mapPointController,
+  conditioningSessionController,
 } from '../../controllers';
 import Logger from '../../config/logger';
 import { JobImp, BaseJob } from './job.definition';
@@ -92,9 +92,9 @@ const handleInnerLoop = async ({ job, teslaAccount, vehicle }: IJobData) => {
 
   // destructure all the data from the vehicle data response object <IVehicle>
   const { charge_state, climate_state, drive_state, vehicle_state } = vehicleData;
+  const { is_preconditioning, is_climate_on, climate_keeper_mode } = climate_state;
   const { center_display_state, sentry_mode } = vehicle_state;
   const { shift_state, longitude, latitude } = drive_state;
-  const { is_preconditioning } = climate_state;
   const { charging_state } = charge_state;
 
   /* CENTER DISPLAY STATES <center_display_state>
@@ -122,7 +122,7 @@ const handleInnerLoop = async ({ job, teslaAccount, vehicle }: IJobData) => {
 
   /*
    * create a new sentry, conditioning, or charge session if vehicle has moved since last session
-   * this can happen when the vehicle moves while the data collector is offline
+   * this can happen when the vehicle moves while the processor is offline
    * this is unlikely in prod but more of a safe guard
    */
   const vehicleHasMoved = getDistance(lastSavedDataPoint!.drive_state, { latitude, longitude }) > 10;
@@ -137,8 +137,9 @@ const handleInnerLoop = async ({ job, teslaAccount, vehicle }: IJobData) => {
     logger.info('sentry session', { ...baseLogObj, is_preconditioning, session: currentSentrySession._id });
   }
 
-  /******** CONDITIONING ********/
-  if (is_preconditioning || center_display_state === 8) {
+  /******** CONDITIONING SESSION ********/
+  /* CLIMATE_KEEPER_MODE states [ 'camp', 'dog', 'off', 'on' ] */
+  if (['camp', 'dog', 'on'].includes(climate_keeper_mode) || is_preconditioning) {
     const id = vehicleHasMoved ? null : lastSavedDataPoint?.conditioning_session_id;
     const currentConditioningSession = await conditioningSessionController.updateConditioningSession(id, dataPoint);
 
@@ -146,14 +147,16 @@ const handleInnerLoop = async ({ job, teslaAccount, vehicle }: IJobData) => {
 
     logger.info('conditioning session', {
       ...baseLogObj,
+      is_climate_on,
       is_preconditioning,
+      climate_keeper_mode,
       center_display_state,
       session: currentConditioningSession._id,
     });
   }
 
   /******** DRIVE SESSION ********/
-  /* DRIVE_STATEs [ null, P, R, N, D ] */
+  /* SHIFT_STATE states [ null, P, R, N, D ] */
   if (['p', 'r', 'n', 'd'].includes(shift_state_lower as string)) {
     const currentDriveSession = await driveSessionController.updateDriveSession(
       lastSavedDataPoint?.drive_session_id,
@@ -166,7 +169,7 @@ const handleInnerLoop = async ({ job, teslaAccount, vehicle }: IJobData) => {
   }
 
   /******** CHARGE SESSION ********/
-  /* CHARGE_STATEs [ Charging, Complete, Disconnected, NoPower, Starting, Stopped ] */
+  /* CHARGE_STATE states [ Charging, Complete, Disconnected, NoPower, Starting, Stopped ] */
   if (['charging', 'complete', 'nopower', 'starting', 'stopped'].includes(charging_state_lower)) {
     const id = vehicleHasMoved ? null : lastSavedDataPoint?.charge_session_id;
     const currentChargeSession = await chargeSessionController.updateChargeSession(id, dataPoint);
