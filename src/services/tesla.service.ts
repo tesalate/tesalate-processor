@@ -41,6 +41,6 @@ const fetchVehicleDataFromTesla = async (
 };
 
 export default {
-  fetchVehicleDataFromTesla,
   fetchVehiclesFromTesla,
+  fetchVehicleDataFromTesla,
 };
