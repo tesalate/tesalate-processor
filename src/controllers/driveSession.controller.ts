@@ -1,12 +1,12 @@
+import mongoose, { Document } from 'mongoose';
 import Logger from '../config/logger';
 import { IDriveSession } from '../models/driveSession.model';
-import mongoose from 'mongoose';
 import { driveSessionService } from '../services';
 import { IVehicleData } from '../models/vehicleData.model';
 
 const logger = Logger('driveSession.controller');
 
-const createDriveSession = async (vehicleData: IVehicleData) => {
+const createDriveSession = async (vehicleData: Document) => {
   try {
     const session = await driveSessionService.createDriveSession(vehicleData);
     return session;
@@ -26,9 +26,9 @@ const getDriveSession = async (_id: string, vehicle: string) => {
   }
 };
 
-const updateDriveSession = async (_id: string, vehicle: string, updateQuery: mongoose.UpdateQuery<IDriveSession>) => {
+const updateDriveSession = async (_id: string | null | undefined, vehicleData: Document) => {
   try {
-    const driveSession = await driveSessionService.updateDriveSessionById(_id, vehicle, updateQuery);
+    const driveSession = await driveSessionService.updateDriveSessionById(_id, vehicleData);
     return driveSession;
   } catch (error) {
     logger.error('error updating drive session', error);

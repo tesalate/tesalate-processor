@@ -1,6 +1,4 @@
-import mongoose from 'mongoose';
 import Logger from '../config/logger';
-import { ISleepSession } from '../models/sleepSession.model';
 import { sleepSessionService } from '../services';
 import { IVehicle } from '../models/vehicle.model';
 
@@ -26,9 +24,9 @@ const getSleepSession = async (_id: string, vehicle: string) => {
   }
 };
 
-const updateSleepSession = async (_id: string, vehicle: string, updateQuery: mongoose.UpdateQuery<ISleepSession>) => {
+const updateSleepSession = async (_id: string | null | undefined, vehicle: IVehicle) => {
   try {
-    const sleepSession = await sleepSessionService.updateSleepSessionById(_id, vehicle, updateQuery);
+    const sleepSession = await sleepSessionService.updateSleepSessionById(_id, vehicle);
     return sleepSession;
   } catch (error) {
     logger.error('error updating sleep session', error);

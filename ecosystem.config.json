@@ -1,7 +1,7 @@
 {
   "apps": [
     {
-      "name": "producers",
+      "name": "producer",
       "script": "./dist/src/index.js",
       "instances": "1",
       "autorestart": true,

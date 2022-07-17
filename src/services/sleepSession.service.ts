@@ -41,19 +41,23 @@ const getSleepSessionById = async (_id: string, vehicle: string): Promise<ISleep
   return session;
 };
 
-const updateSleepSessionById = async (
-  _id: string,
-  vehicle: string,
-  data: mongoose.UpdateQuery<ISleepSession>
-): Promise<ISleepSession | null> => {
+const updateSleepSessionById = async (_id: string | null | undefined, vehicle: IVehicle): Promise<ISleepSession | null> => {
   logger.debug('updating sleep session in DB');
-  const cacheKey = buildCacheKey(vehicle, '', key);
-
-  const session = await SleepSession.findOneAndUpdate({ _id: _id }, { ...data }, { new: true, upsert: true }).lean();
-
-  if (session) {
-    await cacheService.setCache(cacheKey, session, ttl);
-  }
+  const session = await SleepSession.findOneAndUpdate(
+    { _id: _id ?? new mongoose.Types.ObjectId() },
+    {
+      $set: {
+        endDate: new Date(),
+      },
+      $setOnInsert: {
+        user: vehicle.user,
+        vehicle: vehicle._id,
+      },
+    },
+    { new: true, upsert: true }
+  ).lean();
+  const cacheKey = buildCacheKey(session.vehicle, '', key);
+  await cacheService.setCache(cacheKey, session, ttl);
   logger.debug('updated sleep session in DB');
 
   return session;

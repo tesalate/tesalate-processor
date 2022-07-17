@@ -9,6 +9,12 @@ const commonConfig: AxiosRequestConfig = {
   timeout: 10000,
 };
 
+const appApiConfig: AxiosRequestConfig = {
+  ...commonConfig,
+  baseURL: config.apiUrl,
+};
+const appApiInstance: AxiosInstance = axios.create(appApiConfig);
+
 const authConfig: AxiosRequestConfig = {
   ...commonConfig,
   baseURL: config.tesla.oauthUrl,
@@ -19,8 +25,8 @@ const ownerConfig: AxiosRequestConfig = {
   ...commonConfig,
   baseURL: config.tesla.ownerUrl,
 };
-
 const ownerInstance: AxiosInstance = axios.create(ownerConfig);
+
 ownerInstance.interceptors.request.use(
   (config) => {
     // Do something before request is sent
@@ -39,15 +45,18 @@ ownerInstance.interceptors.response.use(
     return response;
   },
   async (error) => {
-    const { data, status, headers } = error.response;
-    logger.error('response error', { data, status, headers });
+    logger.error('response error', {
+      data: error?.response?.data,
+      status: error?.response?.status,
+      headers: error?.response?.headers,
+    });
 
     const originalRequest = error.config;
-    if (error.response.status === 401 && originalRequest.url.includes('/token')) {
+    if (error?.response?.status === 401 && originalRequest?.url?.includes('/token')) {
       return Promise.reject(error);
     }
 
-    if (error.response.status === 401 && !originalRequest._retry && error.config.headers['x-teslaAccount']) {
+    if (error?.response?.status === 401 && !originalRequest._retry && error?.config?.headers['x-teslaAccount']) {
       const { refresh_token, _id } = JSON.parse(error.config.headers['x-teslaAccount']);
       const vehicle = error.config.headers['x-vehicle'];
       originalRequest._retry = true;
@@ -87,5 +96,12 @@ export default {
     put: ownerInstance.put,
     delete: ownerInstance.delete,
     patch: ownerInstance.patch,
+  },
+  appApi: {
+    get: appApiInstance.get,
+    post: appApiInstance.post,
+    put: appApiInstance.put,
+    delete: appApiInstance.delete,
+    patch: appApiInstance.patch,
   },
 };

@@ -1,6 +1,5 @@
+import { Document } from 'mongoose';
 import Logger from '../config/logger';
-import { ISentrySession } from '../models/sentrySession.model';
-import mongoose from 'mongoose';
 import { sentrySessionService } from '../services';
 import { IVehicleData } from '../models/vehicleData.model';
 
@@ -26,9 +25,9 @@ const getSentrySession = async (_id: string, vehicle: string) => {
   }
 };
 
-const updateSentrySession = async (_id: string, vehicle: string, updateQuery: mongoose.UpdateQuery<ISentrySession>) => {
+const updateSentrySession = async (_id: string | undefined | null, vehicleData: Document) => {
   try {
-    const sentrySession = await sentrySessionService.updateSentrySessionById(_id, vehicle, updateQuery);
+    const sentrySession = await sentrySessionService.updateSentrySessionById(_id, vehicleData);
     return sentrySession;
   } catch (error) {
     logger.error('error updating sentry session', error);

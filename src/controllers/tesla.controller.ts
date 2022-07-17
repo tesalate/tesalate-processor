@@ -1,5 +1,5 @@
 import Logger from '../config/logger';
-import { queueService, teslaService, vehicleService } from '../services';
+import { emailService, queueService, teslaService, vehicleService } from '../services';
 import { ITeslaAccount } from '../models/teslaAccount.model';
 import { AxiosError } from 'axios';
 import { IVehicleData } from '../models/vehicleData.model';
@@ -12,8 +12,9 @@ const getVehicles = async (teslaAccount: Partial<ITeslaAccount>, vehicle: string
     return await teslaService.fetchVehiclesFromTesla(teslaAccount, vehicle, id_s);
   } catch (error: unknown) {
     const axiosError = error as AxiosError;
-    logger.error('error getting vehicles from tesla', axiosError?.response?.data);
+    logger.error('error getting vehicles from tesla', axiosError?.response);
     if (axiosError?.response!.status >= 400 && axiosError?.response?.config.url?.includes('/token')) {
+      await emailService.sendDataCollectionStoppedEmail(teslaAccount);
       await queueService.removeVehicleFromQueueByVehicleId(vehicle);
       await vehicleService.updateVehicleById(vehicle, { collectData: false });
       throw new UnrecoverableError('Unrecoverable');
@@ -31,8 +32,9 @@ const getVehicleData = async (
     return await teslaService.fetchVehicleDataFromTesla(teslaAccount, vehicle, id_s);
   } catch (error) {
     const axiosError = error as AxiosError;
-    logger.error('error getting vehicle data from tesla', axiosError?.response?.data);
+    logger.error('error getting vehicle data from tesla', axiosError?.response);
     if (axiosError?.response!.status >= 400 && axiosError?.response?.config.url?.includes('/token')) {
+      await emailService.sendDataCollectionStoppedEmail(teslaAccount);
       await queueService.removeVehicleFromQueueByVehicleId(vehicle);
       await vehicleService.updateVehicleById(vehicle, { collectData: false });
       throw new UnrecoverableError('Unrecoverable');

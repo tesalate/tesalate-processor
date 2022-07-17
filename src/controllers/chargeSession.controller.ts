@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 import Logger from '../config/logger';
 import { IChargeSession } from '../models/chargeSession.model';
 import { chargeSessionService } from '../services';
@@ -6,7 +6,7 @@ import { IVehicleData } from '../models/vehicleData.model';
 
 const logger = Logger('chargeSession.controller');
 
-const createChargeSession = async (vehicleData: IVehicleData) => {
+const createChargeSession = async (vehicleData: Document) => {
   try {
     const session = await chargeSessionService.createChargeSession(vehicleData);
     return session;
@@ -26,9 +26,9 @@ const getChargeSession = async (_id: string, vehicle: string) => {
   }
 };
 
-const updateChargeSession = async (_id: string, vehicle: string, updateQuery: mongoose.UpdateQuery<IChargeSession>) => {
+const updateChargeSession = async (_id: string | null | undefined, vehicleData: Document) => {
   try {
-    const chargeSession = await chargeSessionService.updateChargeSessionById(_id, vehicle, updateQuery);
+    const chargeSession = await chargeSessionService.updateChargeSessionById(_id, vehicleData);
     return chargeSession;
   } catch (error) {
     logger.error('error updating charge session', error);

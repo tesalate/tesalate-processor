@@ -1,5 +1,5 @@
 import { IVehicle } from '../models/vehicle.model';
-import { VehicleDataCollection } from '../queue/jobs';
+import { VehicleDataCollection, DataCollectionStoppedEmail } from '../queue/jobs';
 import { defaultQueue, defaultRepeatJobOpts } from '../queue/queue';
 
 const getJobsFromQueue = async () => {
@@ -8,6 +8,13 @@ const getJobsFromQueue = async () => {
 
 const addVehicleToQueue = async (id: string) => {
   await defaultQueue.add(id, new VehicleDataCollection({ vehicle: id }), {
+    ...defaultRepeatJobOpts,
+    jobId: id,
+  });
+};
+
+const addEmailToQueue = async (id: string) => {
+  await defaultQueue.add(id, new DataCollectionStoppedEmail({ vehicle: id }), {
     ...defaultRepeatJobOpts,
     jobId: id,
   });
@@ -37,6 +44,7 @@ const flushQueue = async (jobs: string[]) => {
 
 export default {
   addVehicleToQueue,
+  addEmailToQueue,
   removeVehicleFromQueue,
   removeVehicleFromQueueByVehicleId,
   getJobsFromQueue,
