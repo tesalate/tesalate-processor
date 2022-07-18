@@ -1,6 +1,6 @@
 // eslint-disable-next-line node/no-unpublished-require
 const Redis = require('ioredis-mock');
-console.log('!!!!!!!!!', process.env.REDIS_VERSION);
+
 class RedisMock {
   static Command = { _transformer: { argument: {}, reply: {} } };
   static _transformer = { argument: {}, reply: {} };
