@@ -13,7 +13,8 @@ jobs:
     strategy:
       matrix:
         node: ['18.x']
-        mongo: ['5.0.x']
+        mongo: ['5.0.9']
+        redis: ['6.2.3']
         os: [ubuntu-latest]
     steps:
       - name: Checkout repo
@@ -44,6 +45,7 @@ jobs:
           PUBLIC_URL: http://localhost
           MONGODB_URL: mongodb://localhost:27017/test
           MONGODB_VERSION: ${{ matrix.mongo }}
+          REDIS_VERSION: ${{ matrix.redis }}
           JWT_SECRET: thisisasamplesecret
           JWT_ACCESS_EXPIRATION_MINUTES: 30
           JWT_REFRESH_EXPIRATION_DAYS: 30
