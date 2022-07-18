@@ -1,5 +1,6 @@
 {
   "name": "tesalate-api",
+  "private": true,
   "description": "API for tesalate",
   "main": "./index.js",
   "repository": "https://github.com/tesalate/tesalate-processor.git",
