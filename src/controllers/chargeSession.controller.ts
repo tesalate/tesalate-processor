@@ -1,8 +1,6 @@
-import mongoose, { Document } from 'mongoose';
+import { Document } from 'mongoose';
 import Logger from '../config/logger';
-import { IChargeSession } from '../models/chargeSession.model';
 import { chargeSessionService } from '../services';
-import { IVehicleData } from '../models/vehicleData.model';
 
 const logger = Logger('chargeSession.controller');
 

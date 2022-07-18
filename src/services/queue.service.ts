@@ -1,5 +1,4 @@
 import { IVehicle } from '../models/vehicle.model';
-import { ITeslaAccount } from '../models/teslaAccount.model';
 import { defaultQueue, defaultRepeatJobOpts } from '../queue/queue';
 import { VehicleDataCollection } from '../queue/jobs';
 

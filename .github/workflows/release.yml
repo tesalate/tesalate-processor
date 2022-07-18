@@ -1,0 +1,41 @@
+name: 🚀 Release
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Semantic Release
+        uses: cycjimmy/semantic-release-action@v3
+        id: semantic
+        with:
+          semantic_version: 18
+          extra_plugins: |
+            @semantic-release/changelog@6
+            @semantic-release/git@10
+            conventional-changelog-conventionalcommits@4.6.1
+            conventional-changelog-eslint@3.0.9
+          branches: |
+            [
+              '+([0-9])?(.{+([0-9]),x}).x',
+              'main', 
+              'next', 
+              'next-major', 
+              {
+                name: 'beta', 
+                prerelease: true
+              }, 
+              {
+                name: 'alpha', 
+                prerelease: true
+              }
+            ]
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}

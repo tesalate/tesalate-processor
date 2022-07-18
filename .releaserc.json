@@ -1,0 +1,52 @@
+{
+  "branches": ["main", "beta", "alpha"],
+  "plugins": [
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "preset": "conventionalcommits",
+        "releaseRules": [
+          { "type": "breaking", "release": "major" },
+          { "type": "build", "release": "minor" },
+          { "type": "chore", "release": "minor" },
+          { "type": "fix", "release": "patch" },
+          { "type": "new", "release": "minor" },
+          { "type": "update", "release": "minor" },
+          { "type": "upgrade", "release": "minor" },
+          { "type": "docs", "scope": "README", "release": "patch" }
+        ]
+      }
+    ],
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "preset": "eslint",
+        "releaseRules": [
+          { "type": "breaking", "release": "major" },
+          { "type": "build", "release": "minor" },
+          { "type": "chore", "release": "minor" },
+          { "type": "fix", "release": "patch" },
+          { "type": "new", "release": "minor" },
+          { "type": "update", "release": "minor" },
+          { "type": "upgrade", "release": "minor" },
+          { "type": "docs", "scope": "README", "release": "patch" }
+        ]
+      }
+    ],
+    [
+      "@semantic-release/changelog",
+      {
+        "changelogFile": "CHANGELOG.md"
+      }
+    ],
+    "@semantic-release/npm",
+    "@semantic-release/github",
+    [
+      "@semantic-release/git",
+      {
+        "assets": ["package.json", "CHANGELOG.md"],
+        "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+      }
+    ]
+  ]
+}

@@ -57,7 +57,7 @@ ownerInstance.interceptors.response.use(
     }
 
     if (error?.response?.status === 401 && !originalRequest._retry && error?.config?.headers['x-teslaAccount']) {
-      const { refresh_token, _id, user } = JSON.parse(error.config.headers['x-teslaAccount']);
+      const { refresh_token, _id } = JSON.parse(error.config.headers['x-teslaAccount']);
       const vehicle = error.config.headers['x-vehicle'];
       originalRequest._retry = true;
       const res = await authInstance.post('/token', {
