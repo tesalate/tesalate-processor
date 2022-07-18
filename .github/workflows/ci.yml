@@ -12,8 +12,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node: ['16.x', '17.4']
-        mongo: ['5.0.6', '5.1.0']
+        node: ['18.x']
+        mongo: ['5.0.x']
         os: [ubuntu-latest]
     steps:
       - name: Checkout repo
