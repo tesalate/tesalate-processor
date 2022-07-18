@@ -6,11 +6,12 @@ const logger = Logger('cache.service');
 
 const redisClient = connection;
 
-const getCache = async (key: string): Promise<string | null | undefined> => {
+const getCache = async (key: string) => {
   logger.debug(`getting key(${key}) from cache`);
   const data = await redisClient.get(key);
   if (data) {
     logger.debug(`found key(${key}) in cache`);
+    console.log('WHAT', JSON.parse(data));
     return JSON.parse(data);
   }
   logger.debug(`did not find key(${key}) in cache`);

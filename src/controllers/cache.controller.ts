@@ -3,7 +3,7 @@ import { cacheService } from '../services';
 
 const logger = Logger('cache.controller');
 
-const getCache = async (key: string): Promise<unknown | null | undefined | void> => {
+const getCache = async (key: string) => {
   try {
     return await cacheService.getCache(key);
   } catch (error) {
