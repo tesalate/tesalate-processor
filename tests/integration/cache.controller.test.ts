@@ -24,6 +24,18 @@ describe('cache integration test', () => {
     expect(res2).toEqual(JSON.stringify(cacheValue));
   });
 
+  it('should set the cache expiration for a key in redis', async () => {
+    await cacheController.setCache(cacheKey, cacheValue);
+    const res = await cacheController.setCacheExpire(cacheKey, 100);
+    console.log('RES', res);
+    expect(res).toEqual(1);
+  });
+
+  it("should set fail at setting expiration on a key that doesn't exist in redis", async () => {
+    const res = await cacheController.setCacheExpire('notInRedis', 100);
+    expect(res).toEqual(0);
+  });
+
   it('should get the cache value in redis by key', async () => {
     await client.set(cacheKey, JSON.stringify(cacheValue));
     const res = await cacheController.getCache(cacheKey);
@@ -38,6 +50,19 @@ describe('cache integration test', () => {
     expect(res2).toBe(1);
     const res3 = await client.get(cacheKey);
     expect(res3).toBeNull();
+  });
+
+  it('should delete the cache in redis by pattern', async () => {
+    await client.set(cacheKey, JSON.stringify(cacheValue));
+    await client.set(cacheKey, JSON.stringify({ test: 'value' }));
+    const res1 = await client.get(cacheKey);
+    expect(res1).toBeDefined();
+    const res2 = await cacheController.deleteCacheByPattern('key*');
+    expect(res2).toBe(1);
+    const res3 = await client.get(cacheKey);
+    expect(res3).toBeNull();
+    const res4 = await client.get('test');
+    expect(res4).toBeDefined();
   });
 
   it('should hit the catch for delete cache', async () => {

@@ -11,7 +11,7 @@ class RedisMock {
     instance.options = {};
     // semver in redis client connection requires minimum version 5.0.0
     // https://github.com/taskforcesh/bullmq/blob/da8cdb42827c22fea12b9c2f4c0c80fbad786b98/src/classes/redis-connection.ts#L9
-    instance.info = async () => 'redis_version:5.0.0';
+    instance.info = async () => `redis_version:${process.env.REDIS_VERSION || '5.0.0'}`;
     instance.connect = () => {};
     instance.disconnect = () => {};
     instance.duplicate = () => instance;
