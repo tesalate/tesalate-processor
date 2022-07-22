@@ -8,6 +8,7 @@ import { ISession } from '../models/session.model';
 import { buildCacheKey } from '../utils/formatFuncs';
 import { SessionType } from '../models/session.model';
 import Logger from '../config/logger';
+import config from '../config/config';
 
 const logger = Logger('session.service');
 
@@ -37,6 +38,9 @@ const upsertSessionById = async (
             vehicle,
             type,
             user,
+            metadata: {
+              interval: config.queue.jobInterval,
+            },
           },
         },
         { upsert: true, new: true }
