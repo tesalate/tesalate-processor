@@ -75,6 +75,10 @@ const sessionSchema = new Schema({
       required: true,
     },
   },
+  metadata: {
+    default: {},
+    type: Schema.Types.Mixed,
+  },
 });
 
 sessionSchema.plugin(objectIdToString());
