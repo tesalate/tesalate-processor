@@ -1,8 +1,12 @@
 import axios from '../config/axios';
+import { performance } from 'perf_hooks';
+
+import Logger from '../config/logger';
 import { TeslaVehiclesResponse } from '../models/types.d';
 import { IVehicleData } from '../models/vehicleData.model';
 import { ITeslaAccount } from '../models/teslaAccount.model';
 
+const logger = Logger('tesla.service');
 const { ownerApi } = axios;
 
 const fetchVehiclesFromTesla = async (
@@ -10,6 +14,7 @@ const fetchVehiclesFromTesla = async (
   vehicle: string,
   id_s?: string
 ): Promise<TeslaVehiclesResponse[]> => {
+  const startTime = performance.now();
   const {
     data: { response },
   } = await ownerApi.get('/api/1/vehicles', {
@@ -20,6 +25,8 @@ const fetchVehiclesFromTesla = async (
     },
   });
   const res = id_s ? response.filter((curr: TeslaVehiclesResponse) => curr.id_s === id_s) : response;
+  const endTime = performance.now();
+  logger.debug(`Call to fetchVehiclesFromTesla took ${endTime - startTime} milliseconds`);
   return res;
 };
 
@@ -28,6 +35,8 @@ const fetchVehicleDataFromTesla = async (
   vehicle: string,
   id_s: string
 ): Promise<IVehicleData> => {
+  const startTime = performance.now();
+
   const {
     data: { response },
   } = await ownerApi.get(`/api/1/vehicles/${id_s}/vehicle_data`, {
@@ -37,6 +46,8 @@ const fetchVehicleDataFromTesla = async (
       'x-vehicle': vehicle,
     },
   });
+  const endTime = performance.now();
+  logger.debug(`Call to fetchVehicleDataFromTesla took ${endTime - startTime} milliseconds`);
   return response;
 };
 

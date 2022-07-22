@@ -29,7 +29,7 @@ const saveVehicleData = async (vehicleData: Document) => {
   logger.debug('creating vehicle data point', { _id: vehicleData._id });
   const data = await vehicleData.save();
   const dataObj = data.toJSON();
-  logger.debug('saved vehicle data point', { _id: dataObj._id });
+  logger.debug('saved data point', { _id: dataObj._id, vehicle: dataObj.vehicle });
   const cacheKey = buildCacheKey(dataObj.vehicle, key);
   await cacheService.setCache(cacheKey, dataObj, ttl);
   return data;

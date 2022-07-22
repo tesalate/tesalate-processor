@@ -153,11 +153,9 @@ const handleInnerLoop = async ({ job, teslaAccount, vehicle }: IJobData) => {
 
     dataPoint.sentry_session_id = currentSentrySession._id;
 
-    logger.info('sentry session', {
+    logger.debug('sentry session', {
       ...baseLogObj,
       is_preconditioning,
-      session: currentSentrySession._id,
-      sessionType: SessionType['sentry'],
     });
   }
 
@@ -175,14 +173,12 @@ const handleInnerLoop = async ({ job, teslaAccount, vehicle }: IJobData) => {
 
     dataPoint.conditioning_session_id = currentConditioningSession._id;
 
-    logger.info('conditioning session', {
+    logger.debug('conditioning session', {
       ...baseLogObj,
       is_climate_on,
       is_preconditioning,
       climate_keeper_mode,
       center_display_state,
-      session: currentConditioningSession._id,
-      sessionType: SessionType['conditioning'],
     });
   }
 
@@ -199,11 +195,9 @@ const handleInnerLoop = async ({ job, teslaAccount, vehicle }: IJobData) => {
 
     dataPoint.drive_session_id = currentDriveSession._id;
 
-    logger.info('drive session', {
+    logger.debug('drive session', {
       ...baseLogObj,
       shift_state,
-      session: currentDriveSession._id,
-      sessionType: SessionType['drive'],
     });
   }
 
@@ -221,11 +215,9 @@ const handleInnerLoop = async ({ job, teslaAccount, vehicle }: IJobData) => {
 
     dataPoint.charge_session_id = currentChargeSession._id;
 
-    logger.info('charge session', {
+    logger.debug('charge session', {
       ...baseLogObj,
       charging_state,
-      session: currentChargeSession._id,
-      sessionType: SessionType['charge'],
     });
   }
 

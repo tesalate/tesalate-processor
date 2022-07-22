@@ -54,7 +54,10 @@ const saveMapPoint = async (vehicleData: Document): Promise<IMapPoint | null> =>
     { upsert: true, new: true }
   );
 
-  logger.debug('saved map point', { _id: mapPoint._id });
+  logger.info(`${mapPoint.visitCount === 1 ? 'inserted' : 'updated'} map point`, {
+    _id: mapPoint._id,
+    vehicle: mapPoint.vehicle,
+  });
   return mapPoint;
 };
 

@@ -41,6 +41,8 @@ const upsertSessionById = async (
         },
         { upsert: true, new: true }
       );
+      const cacheKey = buildCacheKey(session.vehicle, `${SessionType[type]}-session`);
+      await cacheService.setCache(cacheKey, session, ttl);
       break;
     }
 
@@ -84,8 +86,12 @@ const upsertSessionById = async (
   }
   const endTime = performance.now();
 
-  const cacheKey = buildCacheKey(session.vehicle, `${SessionType[type]}-session`);
-  await cacheService.setCache(cacheKey, session, ttl);
+  logger.info(`${session.dataPoints.length <= 1 ? 'inserted' : 'updated'} session`, {
+    _id: session._id,
+    vehicle: session.vehicle,
+    type: SessionType[type],
+  });
+
   logger.debug(`Call to upsertSessionById took ${endTime - startTime} milliseconds`);
   return session;
 };
