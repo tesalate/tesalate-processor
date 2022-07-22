@@ -1,4 +1,4 @@
-export const buildCacheKey = (vehicle: string, _id: string, key: string) => `${vehicle}:${_id}:${key}`;
+export const buildCacheKey = (vehicle: string, key: string) => `${vehicle}:${key}`;
 
 export const toFixedWithoutRounding = (num: number, fractionDigits: number) => {
   if ((num > 0 && num < 0.000001) || (num < 0 && num > -0.000001)) {
