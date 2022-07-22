@@ -12,7 +12,7 @@ type Keys = keyof typeof loops;
 export type Values = typeof loops[Keys];
 
 const getLoop = async (vehicle: string): Promise<string> => {
-  const cacheKey = buildCacheKey(vehicle, key);
+  const cacheKey = buildCacheKey(vehicle, '', key);
   const cachedLoop = await cacheService.getCache(cacheKey);
   if (cachedLoop) {
     await cacheService.setCacheExpire(cacheKey, ttl);
@@ -24,12 +24,12 @@ const getLoop = async (vehicle: string): Promise<string> => {
 };
 
 const setLoop = async (vehicle: string, value: Values) => {
-  const cacheKey = buildCacheKey(vehicle, key);
+  const cacheKey = buildCacheKey(vehicle, '', key);
   await cacheService.setCache(cacheKey, value, ttl);
 };
 
 const setLoopExpiration = async (vehicle: string) => {
-  const cacheKey = buildCacheKey(vehicle, key);
+  const cacheKey = buildCacheKey(vehicle, '', key);
   await cacheService.setCacheExpire(cacheKey, ttl);
 };
 

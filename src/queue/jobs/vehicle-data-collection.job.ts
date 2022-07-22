@@ -1,31 +1,27 @@
-/** PACKAGE IMPORTS **/
 import { Job } from 'bullmq';
 import isEmpty from 'lodash/isEmpty';
 import { getDistance } from 'geolib';
-
-/** CONTROLLER LEVEL IMPORTS **/
 import {
   cacheController,
   teslaController,
-  sessionController,
   vehicleController,
-  mapPointController,
   vehicleDataController,
+  sleepSessionController,
+  driveSessionController,
   teslaAccountController,
+  chargeSessionController,
+  sentrySessionController,
   dataCollectorController,
+  mapPointController,
+  conditioningSessionController,
 } from '../../controllers';
-import { JobImp, BaseJob } from './job.definition';
-
-/** SERVICE LEVEL IMPORTS **/
-import { loops, key as loopKey, Values } from '../../services/dataCollector.service';
-
-/** TYPE IMPORTS **/
-import { SessionType } from '../../models/session.model';
-import { IJobData, IVehicleJobPayload } from '../../models/types';
-
-/** UTIL and CONFIG IMPORTS **/
 import Logger from '../../config/logger';
+import { JobImp, BaseJob } from './job.definition';
 import { buildCacheKey } from '../../utils/formatFuncs';
+import { ISleepSession } from '../../models/sleepSession.model';
+import { IJobData, IVehicleJobPayload } from '../../models/types';
+import { key as sleepSessionKey } from '../../services/sleepSession.service';
+import { loops, key as loopKey, Values } from '../../services/dataCollector.service';
 
 const logger = Logger('vehicle-data-collection.job');
 
@@ -42,7 +38,7 @@ const handleOuterLoop = async ({ job, teslaAccount, vehicle }: IJobData) => {
   // states ['online', 'offline', 'asleep']
   const { state } = foundVehicle;
 
-  const sleepSessionCacheKey = `${vehicle._id}::${SessionType['sleep']}-session`;
+  const sleepSessionCacheKey = `${vehicle._id}::${sleepSessionKey}`;
   /*
    * if vehicle state from tesla does not match vehicle state
    * stored in db, update the db vehicle state
@@ -50,38 +46,30 @@ const handleOuterLoop = async ({ job, teslaAccount, vehicle }: IJobData) => {
   if (state !== vehicle.state) await vehicleController.updateVehicle(_id, { ...foundVehicle });
 
   switch (state.toLowerCase()) {
-    case 'online': {
+    case 'online':
       // if vehicle is online, switch to inner loop
       await cacheController.deleteCacheByKey(sleepSessionCacheKey);
       await dataCollectorController.setLoop(vehicle._id, loops.inner);
       logger.info(state, { ...baseLogObj });
       break;
-    }
 
     case 'asleep': {
       // if vehicle is offline, continue on outer loop and create or update sleep session
-      const sleepSessionFromCache = await cacheController.getCache(sleepSessionCacheKey);
-      const sleepSession = await sessionController.upsertSession(
-        sleepSessionFromCache?._id,
-        vehicle.user,
-        vehicle._id,
-        SessionType['sleep']
-      );
+      const sleepSessionFromCache = (await cacheController.getCache(sleepSessionCacheKey)) as ISleepSession | undefined;
+      const sleepSession = await sleepSessionController.updateSleepSession(sleepSessionFromCache?._id, vehicle);
 
       await dataCollectorController.setLoopExpiration(vehicle._id);
-      logger.info(state, { ...baseLogObj, session: sleepSession?._id, sessionType: SessionType['sleep'] });
+      logger.info(state, { ...baseLogObj, session: sleepSession?._id });
       break;
     }
-
-    case 'offline': {
+    case 'offline':
       // if vehicle is offline, continue on outer loop
       await dataCollectorController.setLoopExpiration(vehicle._id);
       await cacheController.deleteCacheByKey(sleepSessionCacheKey);
       logger.info(state, { ...baseLogObj });
       break;
-    }
 
-    default: {
+    default:
       /*
        * at the moment tesla states are only 'online', 'asleep', or 'offline'
        * if the default case if hit, tesla has implemented a new state
@@ -89,7 +77,6 @@ const handleOuterLoop = async ({ job, teslaAccount, vehicle }: IJobData) => {
       logger.warn('unhandled state', { ...baseLogObj, state });
       await dataCollectorController.setLoopExpiration(vehicle._id);
       break;
-    }
   }
 };
 
@@ -143,35 +130,18 @@ const handleInnerLoop = async ({ job, teslaAccount, vehicle }: IJobData) => {
   /******** SENTRY SESSION ********/
   if (sentry_mode) {
     const id = vehicleHasMoved ? null : lastSavedDataPoint?.sentry_session_id;
-    const currentSentrySession = await sessionController.upsertSession(
-      id,
-      vehicle.user,
-      vehicle._id,
-      SessionType['sentry'],
-      dataPoint
-    );
+    const currentSentrySession = await sentrySessionController.updateSentrySession(id, dataPoint);
 
     dataPoint.sentry_session_id = currentSentrySession._id;
 
-    logger.info('sentry session', {
-      ...baseLogObj,
-      is_preconditioning,
-      session: currentSentrySession._id,
-      sessionType: SessionType['sentry'],
-    });
+    logger.info('sentry session', { ...baseLogObj, is_preconditioning, session: currentSentrySession._id });
   }
 
   /******** CONDITIONING SESSION ********/
   /* CLIMATE_KEEPER_MODE states [ 'camp', 'dog', 'off', 'on' ] */
   if (['camp', 'dog', 'on'].includes(climate_keeper_mode) || is_preconditioning) {
     const id = vehicleHasMoved ? null : lastSavedDataPoint?.conditioning_session_id;
-    const currentConditioningSession = await sessionController.upsertSession(
-      id,
-      vehicle.user,
-      vehicle._id,
-      SessionType['conditioning'],
-      dataPoint
-    );
+    const currentConditioningSession = await conditioningSessionController.updateConditioningSession(id, dataPoint);
 
     dataPoint.conditioning_session_id = currentConditioningSession._id;
 
@@ -182,42 +152,27 @@ const handleInnerLoop = async ({ job, teslaAccount, vehicle }: IJobData) => {
       climate_keeper_mode,
       center_display_state,
       session: currentConditioningSession._id,
-      sessionType: SessionType['conditioning'],
     });
   }
 
   /******** DRIVE SESSION ********/
   /* SHIFT_STATE states [ null, P, R, N, D ] */
   if (['p', 'r', 'n', 'd'].includes(shift_state_lower as string)) {
-    const currentDriveSession = await sessionController.upsertSession(
+    const currentDriveSession = await driveSessionController.updateDriveSession(
       lastSavedDataPoint?.drive_session_id,
-      vehicle.user,
-      vehicle._id,
-      SessionType['drive'],
       dataPoint
     );
 
     dataPoint.drive_session_id = currentDriveSession._id;
 
-    logger.info('drive session', {
-      ...baseLogObj,
-      shift_state,
-      session: currentDriveSession._id,
-      sessionType: SessionType['drive'],
-    });
+    logger.info('drive session', { ...baseLogObj, shift_state, session: currentDriveSession._id });
   }
 
   /******** CHARGE SESSION ********/
   /* CHARGE_STATE states [ Charging, Complete, Disconnected, NoPower, Starting, Stopped ] */
   if (['charging', 'complete', 'nopower', 'starting', 'stopped'].includes(charging_state_lower)) {
     const id = vehicleHasMoved ? null : lastSavedDataPoint?.charge_session_id;
-    const currentChargeSession = await sessionController.upsertSession(
-      id,
-      vehicle.user,
-      vehicle._id,
-      SessionType['charge'],
-      dataPoint
-    );
+    const currentChargeSession = await chargeSessionController.updateChargeSession(id, dataPoint);
 
     dataPoint.charge_session_id = currentChargeSession._id;
 
@@ -225,13 +180,11 @@ const handleInnerLoop = async ({ job, teslaAccount, vehicle }: IJobData) => {
       ...baseLogObj,
       charging_state,
       session: currentChargeSession._id,
-      sessionType: SessionType['charge'],
     });
   }
 
   await vehicleDataController.saveVehicleData(dataPoint);
 };
-/** END LOOPS **/
 
 /** JOB **/
 export class VehicleDataCollection extends BaseJob implements JobImp {
@@ -243,9 +196,9 @@ export class VehicleDataCollection extends BaseJob implements JobImp {
     const _id = this.payload.vehicle;
     const vehicle = await vehicleController.getVehicle(_id);
     if (!vehicle || isEmpty(vehicle)) throw new Error('Missing vehicle');
-    const { teslaAccount: taID, id_s } = vehicle;
+    const { teslaAccount: ta, id_s } = vehicle;
 
-    const teslaAccount = await teslaAccountController.getTeslaAccount(taID, _id);
+    const teslaAccount = await teslaAccountController.getTeslaAccount(ta, _id);
 
     // handle error cases
     if (!teslaAccount || isEmpty(teslaAccount)) throw new Error('Missing tesla account');
@@ -253,7 +206,7 @@ export class VehicleDataCollection extends BaseJob implements JobImp {
       throw new Error('Missing or bad access token');
     if (!id_s || typeof id_s !== 'string') throw new Error('Missing or bad id_s');
 
-    const loopCacheKey = buildCacheKey(_id, loopKey);
+    const loopCacheKey = buildCacheKey(_id, '', loopKey);
 
     // get the current loop from cache; Defaults to outer loop
     const loop = (await dataCollectorController.getLoop(vehicle._id)) as Values;
@@ -275,7 +228,6 @@ export class VehicleDataCollection extends BaseJob implements JobImp {
     }
   };
 
-  /** HANDLE ERRORS **/
   // all thrown errors are handled here
   failed = async (job: Job): Promise<void> => {
     const _id = this.payload.vehicle;

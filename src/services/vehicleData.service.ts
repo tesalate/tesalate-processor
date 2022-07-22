@@ -10,6 +10,27 @@ const logger = Logger('vehicleData.service');
 const key = 'latest';
 const ttl = 30;
 
+// const createVehicleData = async (vehicleData: IVehicleData): Promise<IVehicleData> => {
+//   const { drive_state, vehicle, user } = vehicleData;
+//   logger.debug('creating vehicle data point', { vehicle });
+
+//   const data = (
+//     await VehicleData.create({
+//       ...vehicleData,
+//       geoJSON: {
+//         type: 'Point' as GeoJSONType,
+//         coordinates: [drive_state.longitude, drive_state.latitude],
+//       },
+//       vehicle,
+//       user,
+//     })
+//   ).toJSON();
+//   logger.debug('saved vehicle data point', { _id: data._id });
+//   const cacheKey = buildCacheKey(data.vehicle, '', key);
+//   await cacheService.setCache(cacheKey, data, ttl);
+//   return data;
+// };
+
 const createVehicleData = async (vehicleData: IVehicleData) => {
   const { drive_state, vehicle, user } = vehicleData;
   logger.debug('creating vehicle data point', { vehicle });
@@ -30,13 +51,13 @@ const saveVehicleData = async (vehicleData: Document) => {
   const data = await vehicleData.save();
   const dataObj = data.toJSON();
   logger.debug('saved vehicle data point', { _id: dataObj._id });
-  const cacheKey = buildCacheKey(dataObj.vehicle, key);
+  const cacheKey = buildCacheKey(dataObj.vehicle, '', key);
   await cacheService.setCache(cacheKey, dataObj, ttl);
   return data;
 };
 
 const getLatestVehicleDataByVehicleId = async (vehicle: string): Promise<IVehicleData | null> => {
-  const cacheKey = buildCacheKey(vehicle, key);
+  const cacheKey = buildCacheKey(vehicle, '', key);
   const cachedValue = await cacheService.getCache(cacheKey);
   if (cachedValue) {
     await cacheService.setCacheExpire(cacheKey, ttl);
@@ -53,7 +74,7 @@ const getLatestVehicleDataByVehicleId = async (vehicle: string): Promise<IVehicl
 };
 
 const updateVehicleData = async (_id: string, vehicleData: IVehicleData): Promise<IVehicleData> => {
-  const cacheKey = buildCacheKey(vehicleData._id, key);
+  const cacheKey = buildCacheKey(vehicleData._id, '', key);
   logger.debug('updating vehicle data point', { _id });
   const data = await VehicleData.findOneAndUpdate({ _id }, vehicleData, { upsert: true, new: true });
   logger.debug('updated vehicle data point', { _id: data._id });
