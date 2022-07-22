@@ -27,7 +27,6 @@ describe('cache integration test', () => {
   it('should set the cache expiration for a key in redis', async () => {
     await cacheController.setCache(cacheKey, cacheValue);
     const res = await cacheController.setCacheExpire(cacheKey, 100);
-    console.log('RES', res);
     expect(res).toEqual(1);
   });
 

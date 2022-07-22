@@ -26,11 +26,13 @@ const fetchVehiclesFromTesla = async (
 const fetchVehicleDataFromTesla = async (
   teslaAccount: Partial<ITeslaAccount>,
   vehicle: string,
-  id_s: string
+  id_s: string,
+  latest = false
 ): Promise<IVehicleData> => {
+  const endpoint = `/api/1/vehicles/${id_s}/${latest ? 'latest_' : ''}vehicle_data`;
   const {
     data: { response },
-  } = await ownerApi.get(`/api/1/vehicles/${id_s}/vehicle_data`, {
+  } = await ownerApi.get(endpoint, {
     headers: {
       Authorization: `Bearer ${teslaAccount.access_token}`,
       'x-teslaAccount': JSON.stringify(teslaAccount),

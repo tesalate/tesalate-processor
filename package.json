@@ -77,6 +77,7 @@
     "lodash": "^4.17.21",
     "mongoose": "^6.4.0",
     "mongoose-autopopulate": "^0.16.1",
+    "perf_hooks": "^0.0.1",
     "pm2": "^5.2.0",
     "redis": "^4.1.0",
     "url-parse": "^1.5.10",

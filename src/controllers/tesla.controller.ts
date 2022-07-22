@@ -1,9 +1,10 @@
-import Logger from '../config/logger';
-import { emailService, queueService, teslaService, vehicleService } from '../services';
-import { ITeslaAccount } from '../models/teslaAccount.model';
 import { AxiosError } from 'axios';
-import { IVehicleData } from '../models/vehicleData.model';
 import { UnrecoverableError } from 'bullmq';
+
+import Logger from '../config/logger';
+import { ITeslaAccount } from '../models/teslaAccount.model';
+import { IVehicleData } from '../models/vehicleData.model';
+import { emailService, queueService, teslaService, vehicleService } from '../services';
 
 const logger = Logger('tesla.controller');
 
@@ -26,10 +27,11 @@ const getVehicles = async (teslaAccount: Partial<ITeslaAccount>, vehicle: string
 const getVehicleData = async (
   teslaAccount: Partial<ITeslaAccount>,
   vehicle: string,
-  id_s: string
+  id_s: string,
+  latest = false
 ): Promise<IVehicleData> => {
   try {
-    return await teslaService.fetchVehicleDataFromTesla(teslaAccount, vehicle, id_s);
+    return await teslaService.fetchVehicleDataFromTesla(teslaAccount, vehicle, id_s, latest);
   } catch (error) {
     const axiosError = error as AxiosError;
     logger.error('error getting vehicle data from tesla', axiosError?.response);

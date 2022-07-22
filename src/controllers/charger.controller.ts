@@ -1,6 +1,6 @@
 import Logger from '../config/logger';
 import { chargerService } from '../services';
-import { DriveState } from 'src/models/vehicleData.model';
+import { DriveState } from '../models/vehicleData.model';
 
 const logger = Logger('charger.controller');
 
