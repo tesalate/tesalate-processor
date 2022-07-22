@@ -42,7 +42,7 @@ const handleOuterLoop = async ({ job, teslaAccount, vehicle }: IJobData) => {
   // states ['online', 'offline', 'asleep']
   const { state } = foundVehicle;
 
-  const sleepSessionCacheKey = `${vehicle._id}::${SessionType['sleep']}-session`;
+  const sleepSessionCacheKey = `${vehicle._id}:${SessionType['sleep']}-session`;
   /*
    * if vehicle state from tesla does not match vehicle state
    * stored in db, update the db vehicle state
