@@ -45,7 +45,7 @@ const upsertSessionById = async (
         },
         { upsert: true, new: true, select: '_id createdAt updatedAt' }
       );
-      const cacheKey = buildCacheKey(session.vehicle, `${SessionType[type]}-session`);
+      const cacheKey = buildCacheKey(vehicle, `${SessionType[type]}-session`);
       await cacheService.setCache(cacheKey, session, ttl);
       break;
     }
