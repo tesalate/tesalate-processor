@@ -83,8 +83,7 @@ const sessionSchema = new Schema({
 
 sessionSchema.plugin(objectIdToString());
 
-sessionSchema.index({ vehicle: 1, _id: -1 });
-sessionSchema.index({ vehicle: 1, type: 1 });
+sessionSchema.index({ _id: -1, vehicle: 1, user: 1, type: 1 });
 /**
  * @typedef Session
  */
