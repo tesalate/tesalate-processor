@@ -68,7 +68,7 @@ ownerInstance.interceptors.response.use(
       });
 
       const { data } = res;
-      console.log(data);
+
       if (res.status === 200) {
         const { access_token, refresh_token } = data;
         await teslaAccountController.updateTeslaAccount({ access_token, refresh_token, _id }, vehicle);

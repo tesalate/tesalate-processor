@@ -43,7 +43,7 @@ const upsertSessionById = async (
             },
           },
         },
-        { upsert: true, new: true }
+        { upsert: true, new: true, select: '_id createdAt updatedAt' }
       );
       const cacheKey = buildCacheKey(session.vehicle, `${SessionType[type]}-session`);
       await cacheService.setCache(cacheKey, session, ttl);
@@ -79,7 +79,7 @@ const upsertSessionById = async (
             startLocation: { type: 'Point', coordinates: [drive_state.longitude, drive_state.latitude] },
           },
         },
-        { upsert: true, new: true }
+        { upsert: true, new: true, select: '_id createdAt updatedAt' }
       );
       break;
     }
@@ -90,9 +90,9 @@ const upsertSessionById = async (
   }
   const endTime = performance.now();
 
-  logger.info(`${session.dataPoints.length <= 1 ? 'inserted' : 'updated'} session`, {
+  logger.info(`${session.createdAt === session.updatedAt ? 'inserted' : 'updated'} session`, {
     _id: session._id,
-    vehicle: session.vehicle,
+    vehicle,
     type: SessionType[type],
   });
 

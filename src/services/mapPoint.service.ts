@@ -1,4 +1,6 @@
 import { Document } from 'mongoose';
+import { performance } from 'perf_hooks';
+
 import { MapPoint } from '../models';
 import { IMapPoint } from '../models/mapPoint.model';
 import { toFixedWithoutRounding } from '../utils/formatFuncs';
@@ -7,6 +9,7 @@ import Logger from '../config/logger';
 const logger = Logger('mapPoint.service');
 
 const saveMapPoint = async (vehicleData: Document): Promise<IMapPoint | null> => {
+  const startTime = performance.now();
   const { _id, vehicle, user, drive_state } = vehicleData.toJSON();
   const { longitude, latitude } = drive_state;
 
@@ -53,11 +56,14 @@ const saveMapPoint = async (vehicleData: Document): Promise<IMapPoint | null> =>
     },
     { upsert: true, new: true }
   );
+  const endTime = performance.now();
 
   logger.info(`${mapPoint.visitCount === 1 ? 'inserted' : 'updated'} map point`, {
     _id: mapPoint._id,
     vehicle: mapPoint.vehicle,
   });
+  logger.debug(`Call to saveMapPoint took ${endTime - startTime} milliseconds`);
+
   return mapPoint;
 };
 
