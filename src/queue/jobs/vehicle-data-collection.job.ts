@@ -2,6 +2,7 @@
 import { Job } from 'bullmq';
 import isEmpty from 'lodash/isEmpty';
 import { getDistance } from 'geolib';
+import { performance } from 'perf_hooks';
 
 /** CONTROLLER LEVEL IMPORTS **/
 import {
@@ -232,6 +233,8 @@ export class VehicleDataCollection extends BaseJob implements JobImp {
   }
 
   handle = async (job: Job): Promise<void> => {
+    const startTime = performance.now();
+
     const _id = this.payload.vehicle;
     const vehicle = await vehicleController.getVehicle(_id);
     if (!vehicle || isEmpty(vehicle)) throw new Error('Missing vehicle');
@@ -265,6 +268,7 @@ export class VehicleDataCollection extends BaseJob implements JobImp {
         logger.error('Unhandled loop case', { loop });
         break;
     }
+    logger.debug(`VehicleDataCollection job(${job.id}) took ${performance.now() - startTime} milliseconds`);
   };
 
   /** HANDLE ERRORS **/

@@ -62,7 +62,7 @@ const saveMapPoint = async (vehicleData: Document): Promise<IMapPoint | null> =>
     _id: mapPoint._id,
     vehicle: mapPoint.vehicle,
   });
-  logger.debug(`Call to saveMapPoint took ${endTime - startTime} milliseconds`);
+  logger.debug(`call to saveMapPoint took ${endTime - startTime} milliseconds`);
 
   return mapPoint;
 };

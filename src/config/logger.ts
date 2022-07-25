@@ -4,7 +4,7 @@ import stringify from 'json-stringify-safe';
 import config from './config';
 import isEmpty from 'lodash/isEmpty';
 
-const { printf, metadata, combine, json } = winston.format;
+const { printf, metadata, combine, json, timestamp } = winston.format;
 
 const color = {
   info: '\x1b[32m',
@@ -20,21 +20,30 @@ const Logger = (module: string) => {
     transports: [
       new winston.transports.Console({
         level: config.logLevel,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        format: printf((info: any): string => {
-          const { level, message, ...rest } = info;
-          let formattedMessage = `[${new Date().toISOString()}] ${
-            color[level as T1] || ''
-          }[${level.toUpperCase()}] [${module.toUpperCase()}] - ${message}`;
-          if (!isEmpty(rest)) formattedMessage += ` | ${stringify(rest)}`;
-          formattedMessage += '\x1b[0m ';
-          return formattedMessage;
-        }),
+        format:
+          config.env === 'production'
+            ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              printf((info: any): string => {
+                const { level, message, ...rest } = info;
+                let formattedMessage = `[${level.toUpperCase()}] [${module.toUpperCase()}] - ${message}`;
+                if (!isEmpty(rest)) formattedMessage += ` | ${stringify(rest)}`;
+                return formattedMessage;
+              })
+            : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              printf((info: any): string => {
+                const { level, message, ...rest } = info;
+                let formattedMessage = `[${new Date().toISOString()}] ${
+                  color[level as T1] || ''
+                }[${level.toUpperCase()}] [${module.toUpperCase()}] - ${message}`;
+                if (!isEmpty(rest)) formattedMessage += ` | ${stringify(rest)}`;
+                formattedMessage += '\x1b[0m ';
+                return formattedMessage;
+              }),
       }),
       new winston.transports.File({
         filename: './logs/error.log',
         level: 'error',
-        format: combine(metadata(), json()),
+        format: combine(metadata(), json(), timestamp()),
       }),
     ],
   });
