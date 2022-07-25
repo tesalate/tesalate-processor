@@ -96,7 +96,7 @@ const upsertSessionById = async (
     type: SessionType[type],
   });
 
-  logger.debug(`Call to upsertSessionById took ${endTime - startTime} milliseconds`);
+  logger.debug(`call to upsertSessionById took ${endTime - startTime} milliseconds`);
   return session;
 };
 

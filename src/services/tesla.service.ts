@@ -26,7 +26,7 @@ const fetchVehiclesFromTesla = async (
   });
   const res = id_s ? response.filter((curr: TeslaVehiclesResponse) => curr.id_s === id_s) : response;
   const endTime = performance.now();
-  logger.debug(`Call to fetchVehiclesFromTesla took ${endTime - startTime} milliseconds`);
+  logger.debug(`call to fetchVehiclesFromTesla took ${endTime - startTime} milliseconds`);
   return res;
 };
 
@@ -47,7 +47,7 @@ const fetchVehicleDataFromTesla = async (
     },
   });
   const endTime = performance.now();
-  logger.debug(`Call to fetchVehicleDataFromTesla took ${endTime - startTime} milliseconds`);
+  logger.debug(`call to fetchVehicleDataFromTesla took ${endTime - startTime} milliseconds`);
   return response;
 };
 
