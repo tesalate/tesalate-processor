@@ -77,6 +77,9 @@ const upsertSessionById = async (
             vehicle,
             createdAt: new Date(drive_state.timestamp),
             startLocation: { type: 'Point', coordinates: [drive_state.longitude, drive_state.latitude] },
+            metadata: {
+              interval: config.queue.jobInterval,
+            },
           },
         },
         { upsert: true, new: true, select: '_id createdAt updatedAt' }
