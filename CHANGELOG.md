@@ -1,3 +1,5 @@
+# [3.1.0](https://github.com/tesalate/tesalate-processor/compare/v3.0.6...v3.1.0) (2022-07-27)
+
 ## [3.0.6](https://github.com/tesalate/tesalate-processor/compare/v3.0.5...v3.0.6) (2022-07-26)
 
 ## [3.0.5](https://github.com/tesalate/tesalate-processor/compare/v3.0.4...v3.0.5) (2022-07-25)
