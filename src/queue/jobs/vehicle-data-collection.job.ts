@@ -106,7 +106,8 @@ const handleInnerLoop = async ({ job, teslaAccount, vehicle }: IJobData) => {
 
   // destructure all the data from the vehicle data response object <IVehicle>
   const { charge_state, climate_state, drive_state, vehicle_state } = vehicleData;
-  const { is_preconditioning, is_climate_on, climate_keeper_mode } = climate_state;
+  const { is_preconditioning, is_climate_on, climate_keeper_mode, cabin_overheat_protection_actively_cooling } =
+    climate_state;
   const { center_display_state, sentry_mode } = vehicle_state;
   const { shift_state, longitude, latitude } = drive_state;
   const { charging_state } = charge_state;
@@ -161,8 +162,13 @@ const handleInnerLoop = async ({ job, teslaAccount, vehicle }: IJobData) => {
   }
 
   /******** CONDITIONING SESSION ********/
+  /* is the car's hvac system on while the car is parked? */
   /* CLIMATE_KEEPER_MODE states [ 'camp', 'dog', 'off', 'on' ] */
-  if (['camp', 'dog', 'on'].includes(climate_keeper_mode) || is_preconditioning) {
+  if (
+    ['camp', 'dog', 'on'].includes(climate_keeper_mode) ||
+    cabin_overheat_protection_actively_cooling ||
+    is_preconditioning
+  ) {
     const id = vehicleHasMoved ? null : lastSavedDataPoint?.conditioning_session_id;
     const currentConditioningSession = await sessionController.upsertSession(
       id,
