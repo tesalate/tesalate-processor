@@ -13,6 +13,7 @@ export interface IVehicleData {
   charge_session_id: string | null;
   sentry_session_id: string | null;
   conditioning_session_id: string | null;
+  idle_session_id: string | null;
   id: number;
   user_id: number;
   vehicle_id: number;
@@ -333,25 +334,31 @@ const vehicleData = new Schema(
     },
     drive_session_id: {
       type: mongoose.SchemaTypes.ObjectId,
-      ref: 'DriveSession',
+      ref: 'Session',
       default: null,
       autopopulate: false,
     },
     charge_session_id: {
       type: mongoose.SchemaTypes.ObjectId,
-      ref: 'ChargeSession',
+      ref: 'Session',
       default: null,
       autopopulate: false,
     },
     sentry_session_id: {
       type: mongoose.SchemaTypes.ObjectId,
-      ref: 'SentrySession',
+      ref: 'Session',
       default: null,
       autopopulate: false,
     },
     conditioning_session_id: {
       type: mongoose.SchemaTypes.ObjectId,
-      ref: 'ConditioningSession',
+      ref: 'Session',
+      default: null,
+      autopopulate: false,
+    },
+    idle_session_id: {
+      type: mongoose.SchemaTypes.ObjectId,
+      ref: 'Session',
       default: null,
       autopopulate: false,
     },
