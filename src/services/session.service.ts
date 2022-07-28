@@ -25,6 +25,7 @@ const upsertSessionById = async (
   const query = { _id: _id ?? new mongoose.Types.ObjectId(), vehicle, user, type };
   let session;
   const startTime = performance.now();
+  const now = new Date();
   switch (type) {
     // when the vehicle is asleep, we do not have a vehicleData object
     case SessionType['sleep']: {
@@ -32,7 +33,7 @@ const upsertSessionById = async (
         query,
         {
           $set: {
-            updatedAt: new Date(),
+            updatedAt: now,
           },
           $setOnInsert: {
             vehicle,
@@ -41,6 +42,7 @@ const upsertSessionById = async (
             metadata: {
               interval: config.queue.jobInterval,
             },
+            createdAt: now,
           },
         },
         { upsert: true, new: true, select: '_id createdAt updatedAt' }
@@ -85,6 +87,13 @@ const upsertSessionById = async (
         },
         { upsert: true, new: true, select: '_id createdAt updatedAt' }
       );
+
+      // we only need to cache idle sessions
+      if (type === SessionType['idle']) {
+        const cacheKey = buildCacheKey(vehicle, `${SessionType[type]}-session`);
+        await cacheService.setCache(cacheKey, session, 60);
+      }
+
       break;
     }
 

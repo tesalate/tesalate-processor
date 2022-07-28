@@ -43,7 +43,7 @@ const handleOuterLoop = async ({ job, teslaAccount, vehicle }: IJobData) => {
   // states ['online', 'offline', 'asleep']
   const { state } = foundVehicle;
 
-  const sleepSessionCacheKey = `${vehicle._id}:${SessionType['sleep']}-session`;
+  const sleepSessionCacheKey = buildCacheKey(vehicle._id, `${SessionType['sleep']}-session`);
   /*
    * if vehicle state from tesla does not match vehicle state
    * stored in db, update the db vehicle state
@@ -51,16 +51,20 @@ const handleOuterLoop = async ({ job, teslaAccount, vehicle }: IJobData) => {
   if (state !== vehicle.state) await vehicleController.updateVehicle(_id, { ...foundVehicle });
 
   switch (state.toLowerCase()) {
+    // if vehicle is online, switch to inner loop
     case 'online': {
-      // if vehicle is online, switch to inner loop
       await cacheController.deleteCacheByKey(sleepSessionCacheKey);
       await dataCollectorController.setLoop(vehicle._id, loops.inner);
       logger.info(state, { ...baseLogObj });
       break;
     }
 
+    // if vehicle is offline, continue on outer loop and create or update sleep session
     case 'asleep': {
-      // if vehicle is offline, continue on outer loop and create or update sleep session
+      // not sure if this is the best to call del key every time
+      const idleCacheKey = buildCacheKey(vehicle._id, `${SessionType['idle']}-session`);
+      await cacheController.deleteCacheByKey(idleCacheKey);
+
       const sleepSessionFromCache = await cacheController.getCache(sleepSessionCacheKey);
       const sleepSession = await sessionController.upsertSession(
         sleepSessionFromCache?._id,
@@ -236,7 +240,9 @@ const handleInnerLoop = async ({ job, teslaAccount, vehicle }: IJobData) => {
 
   /* car is parked and nothing is keeping it awake */
   if (idle) {
-    const id = vehicleHasMoved ? null : lastSavedDataPoint?.idle_session_id;
+    const idleCacheKey = buildCacheKey(vehicle._id, `${SessionType['idle']}-session`);
+    const cachedSession = await cacheController.getCache(idleCacheKey);
+    const id = vehicleHasMoved || isEmpty(cachedSession) ? null : lastSavedDataPoint?.idle_session_id;
     const currentIdleSession = await sessionController.upsertSession(
       id,
       vehicle.user,
@@ -305,11 +311,16 @@ export class VehicleDataCollection extends BaseJob implements JobImp {
   // all thrown errors are handled here
   failed = async (job: Job): Promise<void> => {
     const _id = this.payload.vehicle;
-    // if something throws an error, delete the cached values for this vehicle
-    await cacheController.deleteCacheByPattern(`${_id}:*`);
+    // if something throws an unrecoverable error, delete the cached values for this vehicle
+    if (job.failedReason.toLowerCase().includes('unrecoverable')) {
+      await cacheController.deleteCacheByPattern(`${_id}:*`);
+    } else {
+      // reset the loop to outer loop if any other error happens
+      await cacheController.deleteCacheByPattern(`${_id}:loop`);
+    }
     logger.error(`Job(${this.name}) with vehicle id ${_id} has failed`, {
       _id,
-      message: job.failedReason,
+      failedReason: job.failedReason,
     });
   };
 }
