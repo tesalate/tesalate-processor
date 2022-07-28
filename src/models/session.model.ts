@@ -9,6 +9,7 @@ export enum SessionType {
   charge = 'charge',
   sentry = 'sentry',
   conditioning = 'conditioning',
+  idle = 'idle',
 }
 
 export interface ISession {

@@ -132,8 +132,8 @@ const handleInnerLoop = async ({ job, teslaAccount, vehicle }: IJobData) => {
 
   // get the last saved data point for this vehicle
   const lastSavedDataPoint = await vehicleDataController.getLatestVehicleData(vehicle._id);
-  const dataPoint = await vehicleDataController.createVehicleData(vehicleData);
-  await mapPointController.saveMapPoint(dataPoint);
+  const newDataPoint = await vehicleDataController.createVehicleData(vehicleData);
+  await mapPointController.saveMapPoint(newDataPoint);
 
   /*
    * create a new sentry, conditioning, or charge session if vehicle has moved since last session
@@ -142,18 +142,21 @@ const handleInnerLoop = async ({ job, teslaAccount, vehicle }: IJobData) => {
    */
   const vehicleHasMoved = getDistance(lastSavedDataPoint!.drive_state, { latitude, longitude }) > 10;
 
+  let idle = true;
+
   /******** SENTRY SESSION ********/
   if (sentry_mode) {
+    idle = false;
     const id = vehicleHasMoved ? null : lastSavedDataPoint?.sentry_session_id;
     const currentSentrySession = await sessionController.upsertSession(
       id,
       vehicle.user,
       vehicle._id,
       SessionType['sentry'],
-      dataPoint
+      newDataPoint
     );
 
-    dataPoint.sentry_session_id = currentSentrySession._id;
+    newDataPoint.sentry_session_id = currentSentrySession._id;
 
     logger.debug('sentry session', {
       ...baseLogObj,
@@ -169,16 +172,17 @@ const handleInnerLoop = async ({ job, teslaAccount, vehicle }: IJobData) => {
     cabin_overheat_protection_actively_cooling ||
     is_preconditioning
   ) {
+    idle = false;
     const id = vehicleHasMoved ? null : lastSavedDataPoint?.conditioning_session_id;
     const currentConditioningSession = await sessionController.upsertSession(
       id,
       vehicle.user,
       vehicle._id,
       SessionType['conditioning'],
-      dataPoint
+      newDataPoint
     );
 
-    dataPoint.conditioning_session_id = currentConditioningSession._id;
+    newDataPoint.conditioning_session_id = currentConditioningSession._id;
 
     logger.debug('conditioning session', {
       ...baseLogObj,
@@ -192,15 +196,16 @@ const handleInnerLoop = async ({ job, teslaAccount, vehicle }: IJobData) => {
   /******** DRIVE SESSION ********/
   /* SHIFT_STATE states [ null, P, R, N, D ] */
   if (['p', 'r', 'n', 'd'].includes(shift_state_lower as string)) {
+    idle = false;
     const currentDriveSession = await sessionController.upsertSession(
       lastSavedDataPoint?.drive_session_id,
       vehicle.user,
       vehicle._id,
       SessionType['drive'],
-      dataPoint
+      newDataPoint
     );
 
-    dataPoint.drive_session_id = currentDriveSession._id;
+    newDataPoint.drive_session_id = currentDriveSession._id;
 
     logger.debug('drive session', {
       ...baseLogObj,
@@ -211,16 +216,17 @@ const handleInnerLoop = async ({ job, teslaAccount, vehicle }: IJobData) => {
   /******** CHARGE SESSION ********/
   /* CHARGE_STATE states [ Charging, Complete, Disconnected, NoPower, Starting, Stopped ] */
   if (['charging', 'complete', 'nopower', 'starting', 'stopped'].includes(charging_state_lower)) {
+    idle = false;
     const id = vehicleHasMoved ? null : lastSavedDataPoint?.charge_session_id;
     const currentChargeSession = await sessionController.upsertSession(
       id,
       vehicle.user,
       vehicle._id,
       SessionType['charge'],
-      dataPoint
+      newDataPoint
     );
 
-    dataPoint.charge_session_id = currentChargeSession._id;
+    newDataPoint.charge_session_id = currentChargeSession._id;
 
     logger.debug('charge session', {
       ...baseLogObj,
@@ -228,7 +234,25 @@ const handleInnerLoop = async ({ job, teslaAccount, vehicle }: IJobData) => {
     });
   }
 
-  await vehicleDataController.saveVehicleData(dataPoint);
+  /* car is parked and nothing is keeping it awake */
+  if (idle) {
+    const id = vehicleHasMoved ? null : lastSavedDataPoint?.idle_session_id;
+    const currentIdleSession = await sessionController.upsertSession(
+      id,
+      vehicle.user,
+      vehicle._id,
+      SessionType['idle'],
+      newDataPoint
+    );
+
+    newDataPoint.idle_session_id = currentIdleSession._id;
+
+    logger.debug('idle session', {
+      ...baseLogObj,
+    });
+  }
+
+  await vehicleDataController.saveVehicleData(newDataPoint);
 };
 /** END LOOPS **/
 

@@ -55,6 +55,7 @@ const upsertSessionById = async (
      * are handled the same way as they will should all
      * have a vehicleData object
      */
+    case SessionType['idle']:
     case SessionType['drive']:
     case SessionType['charge']:
     case SessionType['sentry']:
