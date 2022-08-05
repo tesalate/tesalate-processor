@@ -15,6 +15,7 @@ export enum SessionType {
 export interface ISession {
   _id: string;
   dataPoints: string[];
+  sessionData: {};
   createdAt: Date;
   updatedAt: Date;
   startLocation: GeoJSONPoint;
@@ -34,6 +35,10 @@ const sessionSchema = new Schema({
       },
     ],
     default: [],
+  },
+  sessionData: {
+    // default: {},
+    type: Schema.Types.Mixed,
   },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },

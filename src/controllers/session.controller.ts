@@ -17,7 +17,7 @@ const upsertSession = async (
     const session = await sessionService.upsertSessionById(_id, user, vehicle, type, vehicleData);
     return session;
   } catch (error) {
-    logger.error('error updating drive session', error);
+    logger.error(`error updating ${type} session`, error);
     throw error;
   }
 };
