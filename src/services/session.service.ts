@@ -1,6 +1,6 @@
 import isEmpty from 'lodash/isEmpty';
 import { performance } from 'perf_hooks';
-import mongoose, { Document } from 'mongoose';
+import mongoose, { Document, AggregateOptions } from 'mongoose';
 
 import { cacheService } from '.';
 import { Session } from '../models';
@@ -9,6 +9,7 @@ import { buildCacheKey } from '../utils/formatFuncs';
 import { SessionType } from '../models/session.model';
 import Logger from '../config/logger';
 import config from '../config/config';
+import { IVehicleData } from '../models/vehicleData.model';
 
 const logger = Logger('session.service');
 
@@ -22,7 +23,7 @@ const upsertSessionById = async (
   type: SessionType,
   vehicleData?: Document
 ): Promise<ISession> => {
-  const query = { _id: _id ?? new mongoose.Types.ObjectId(), vehicle, user, type };
+  const query = { _id: _id ?? new mongoose.Types.ObjectId() };
   let session;
   const startTime = performance.now();
   const now = new Date();
@@ -64,27 +65,64 @@ const upsertSessionById = async (
     case SessionType['conditioning']: {
       if (!vehicleData || isEmpty(vehicleData)) throw new Error('No vehicle data');
 
-      const { drive_state } = vehicleData.toJSON();
+      const { drive_state, vehicle_state, charge_state } = vehicleData.toJSON() as IVehicleData;
+
+      const additionalData: Record<string, AggregateOptions | number> = {
+        'sessionData.startingBatteryLevel': { $ifNull: ['$sessionData.startingBatteryLevel', charge_state.battery_level] },
+        'sessionData.endingBatteryLevel': charge_state.battery_level,
+      };
+
+      if (type === SessionType['drive']) {
+        additionalData['sessionData.maxSpeed'] = { $max: ['$sessionData.maxSpeed', drive_state.speed] };
+        additionalData['sessionData.maxPower'] = { $max: ['$sessionData.maxPower', drive_state.power] };
+        additionalData['sessionData.maxRegen'] = { $min: ['$sessionData.maxRegen', drive_state.power] };
+        additionalData['sessionData.startingMilage'] = { $ifNull: ['$sessionData.startingMilage', vehicle_state.odometer] };
+        additionalData['sessionData.distance'] = { $subtract: [vehicle_state.odometer, '$sessionData.startingMilage'] };
+      }
+
+      if (type === SessionType['charge']) {
+        additionalData['sessionData.energyAdded'] = { $max: ['$sessionData.energyAdded', charge_state.charge_energy_added] };
+        additionalData['sessionData.maxChargeRate'] = { $max: ['$sessionData.maxChargeRate', charge_state.charger_power] };
+      }
+
       session = await Session.findOneAndUpdate(
         query,
-        {
-          $set: {
-            updatedAt: new Date(drive_state.timestamp),
-            // endLocation will only change on drive sessions
-            endLocation: { type: 'Point', coordinates: [drive_state.longitude, drive_state.latitude] },
-          },
-          $addToSet: { dataPoints: vehicleData._id },
-          $setOnInsert: {
-            user,
-            type,
-            vehicle,
-            createdAt: new Date(drive_state.timestamp),
-            startLocation: { type: 'Point', coordinates: [drive_state.longitude, drive_state.latitude] },
-            metadata: {
-              interval: config.queue.jobInterval,
+        [
+          {
+            $set: {
+              ...additionalData,
+              user: { $ifNull: ['$user', new mongoose.Types.ObjectId(user)] },
+              type: { $ifNull: ['$type', type] },
+              vehicle: { $ifNull: ['$vehicle', new mongoose.Types.ObjectId(vehicle)] },
+              createdAt: { $ifNull: ['$createdAt', new Date(drive_state.timestamp)] },
+              startLocation: {
+                $ifNull: ['$startLocation', { type: 'Point', coordinates: [drive_state.longitude, drive_state.latitude] }],
+              },
+              metadata: {
+                $ifNull: [
+                  '$metadata',
+                  {
+                    interval: config.queue.jobInterval,
+                  },
+                ],
+              },
+              updatedAt: new Date(drive_state.timestamp),
+              // endLocation will only change on drive sessions
+              endLocation: { type: 'Point', coordinates: [drive_state.longitude, drive_state.latitude] },
+              dataPoints: {
+                $cond: [
+                  {
+                    $isArray: '$dataPoints',
+                  },
+                  {
+                    $concatArrays: ['$dataPoints', [new mongoose.Types.ObjectId(vehicleData._id)]],
+                  },
+                  [new mongoose.Types.ObjectId(vehicleData._id)],
+                ],
+              },
             },
           },
-        },
+        ],
         { upsert: true, new: true, select: '_id createdAt updatedAt' }
       );
 
