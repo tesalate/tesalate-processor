@@ -70,6 +70,9 @@ const upsertSessionById = async (
       const additionalData: Record<string, AggregateOptions | number> = {
         'sessionData.startingBatteryLevel': { $ifNull: ['$sessionData.startingBatteryLevel', charge_state.battery_level] },
         'sessionData.endingBatteryLevel': charge_state.battery_level,
+        'sessionData.duration': {
+          $subtract: [drive_state.timestamp, { $toLong: '$createdAt' }],
+        },
       };
 
       if (type === SessionType['drive']) {
@@ -94,7 +97,6 @@ const upsertSessionById = async (
               user: { $ifNull: ['$user', new mongoose.Types.ObjectId(user)] },
               type: { $ifNull: ['$type', type] },
               vehicle: { $ifNull: ['$vehicle', new mongoose.Types.ObjectId(vehicle)] },
-              createdAt: { $ifNull: ['$createdAt', new Date(drive_state.timestamp)] },
               startLocation: {
                 $ifNull: ['$startLocation', { type: 'Point', coordinates: [drive_state.longitude, drive_state.latitude] }],
               },
@@ -106,6 +108,7 @@ const upsertSessionById = async (
                   },
                 ],
               },
+              createdAt: { $ifNull: ['$createdAt', new Date(drive_state.timestamp)] },
               updatedAt: new Date(drive_state.timestamp),
               // endLocation will only change on drive sessions
               endLocation: { type: 'Point', coordinates: [drive_state.longitude, drive_state.latitude] },
