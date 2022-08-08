@@ -8,7 +8,7 @@ import Logger from '../config/logger';
 
 const logger = Logger('vehicleData.service');
 const key = 'latest';
-const ttl = 30;
+const ttl = 60 * 30; // 30 minutes
 
 const createVehicleData = async (vehicleData: IVehicleData) => {
   const { drive_state, vehicle, user } = vehicleData;
@@ -32,6 +32,12 @@ const saveVehicleData = async (vehicleData: Document) => {
   logger.debug('saved data point', { _id: dataObj._id, vehicle: dataObj.vehicle });
   const cacheKey = buildCacheKey(dataObj.vehicle, key);
   await cacheService.setCache(cacheKey, dataObj, ttl);
+  // This is the query to get the most recent data point from the db
+  await cacheService.setCache(
+    JSON.stringify({ vehicle: dataObj.vehicle, user: dataObj.user, sortBy: '_id:desc', limit: 1 }),
+    dataObj,
+    60 * 60 * 24 // 1 day
+  );
   return data;
 };
 
