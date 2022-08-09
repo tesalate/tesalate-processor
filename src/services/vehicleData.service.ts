@@ -31,7 +31,12 @@ const createVehicleData = async (vehicleData: IVehicleData) => {
 const cacheLatestDataPointForUI = async (dataObj: { vehicle: string; user: string }) => {
   // This is to set the most recent data point in the cache for the frontend to use
   // Not happy about it
-  const uiLatestCacheKey = JSON.stringify({ vehicle: dataObj.vehicle, user: dataObj.user, sortBy: '_id:desc', limit: 1 });
+  const uiLatestCacheKey = JSON.stringify({
+    vehicle: dataObj.vehicle,
+    user: dataObj.user,
+    sortBy: '$natural:desc',
+    limit: 1,
+  });
   const uiLatestCachedValue = await cacheService.getCache(uiLatestCacheKey);
   let count;
   if (!uiLatestCachedValue.totalResults) {
