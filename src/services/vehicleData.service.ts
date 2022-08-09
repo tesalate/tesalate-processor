@@ -1,9 +1,12 @@
 import { Document } from 'mongoose';
+import { performance } from 'perf_hooks';
+
 import { cacheService } from '../services';
 import { VehicleData } from '../models';
 import { IVehicleData } from '../models/vehicleData.model';
 import { buildCacheKey } from '../utils/formatFuncs';
 import { GeoJSONType } from '..//models/types';
+
 import Logger from '../config/logger';
 
 const logger = Logger('vehicleData.service');
@@ -26,18 +29,24 @@ const createVehicleData = async (vehicleData: IVehicleData) => {
 };
 
 const saveVehicleData = async (vehicleData: Document) => {
+  const startTime = performance.now();
   logger.debug('creating vehicle data point', { _id: vehicleData._id });
   const data = await vehicleData.save();
   const dataObj = data.toJSON();
   logger.debug('saved data point', { _id: dataObj._id, vehicle: dataObj.vehicle });
   const cacheKey = buildCacheKey(dataObj.vehicle, key);
   await cacheService.setCache(cacheKey, dataObj, ttl);
-  // This is the query to get the most recent data point from the db
+
+  // This is to set the most recent data point in the cache for the frontend to use
+  // Not happy about it
+  const count = await VehicleData.count({ vehicle: dataObj.vehicle });
   await cacheService.setCache(
     JSON.stringify({ vehicle: dataObj.vehicle, user: dataObj.user, sortBy: '_id:desc', limit: 1 }),
-    dataObj,
+    { results: [dataObj], totalResults: count },
     60 * 60 * 24 // 1 day
   );
+  logger.debug(`call to saveVehicleData() took ${performance.now() - startTime} milliseconds`);
+
   return data;
 };
 
