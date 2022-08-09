@@ -28,27 +28,6 @@ const createVehicleData = async (vehicleData: IVehicleData) => {
   });
 };
 
-const cacheLatestDataPointForUI = async (dataObj: { vehicle: string; user: string }) => {
-  // This is to set the most recent data point in the cache for the frontend to use
-  // Not happy about it
-  const uiLatestCacheKey = JSON.stringify({
-    vehicle: dataObj.vehicle,
-    user: dataObj.user,
-    sortBy: '$natural:desc',
-    limit: 1,
-  });
-  const uiLatestCachedValue = await cacheService.getCache(uiLatestCacheKey);
-  let count;
-  if (!uiLatestCachedValue.totalResults) {
-    logger.debug(`calling db for vehicle(${dataObj.vehicle}) total document count`);
-    count = await VehicleData.count({ vehicle: dataObj.vehicle });
-  } else {
-    logger.debug(`using cached value for vehicle(${dataObj.vehicle}) total document count`);
-    count = uiLatestCachedValue.totalResults + 1;
-  }
-  await cacheService.setCache(uiLatestCacheKey, { results: [dataObj], totalResults: count }, 60 * 60 * 24);
-};
-
 const saveVehicleData = async (vehicleData: Document) => {
   const startTime = performance.now();
   logger.debug('creating vehicle data point', { _id: vehicleData._id });
@@ -57,8 +36,6 @@ const saveVehicleData = async (vehicleData: Document) => {
   logger.debug('saved data point', { _id: dataObj._id, vehicle: dataObj.vehicle });
   const cacheKey = buildCacheKey(dataObj.vehicle, key);
   await cacheService.setCache(cacheKey, dataObj, ttl);
-
-  await cacheLatestDataPointForUI(dataObj as { vehicle: string; user: string });
   logger.debug(`call to saveVehicleData() took ${performance.now() - startTime} milliseconds`);
 
   return data;
@@ -72,7 +49,7 @@ const getLatestVehicleDataByVehicleId = async (vehicle: string): Promise<IVehicl
     return cachedValue as unknown as IVehicleData;
   }
   logger.debug('getting latest vehicle data point from db');
-  const data = await VehicleData.findOne({ vehicle }, {}, { sort: { _id: -1 } }).lean();
+  const data = await VehicleData.findOne({ vehicle }, {}, { sort: { $natural: 'desc' } }).lean();
 
   if (data) {
     logger.debug('got latest vehicle data point from db', { _id: data._id });
