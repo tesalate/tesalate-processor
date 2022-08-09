@@ -137,7 +137,6 @@ const handleInnerLoop = async ({ job, teslaAccount, vehicle }: IJobData) => {
   // get the last saved data point for this vehicle
   const lastSavedDataPoint = await vehicleDataController.getLatestVehicleData(vehicle._id);
   const newDataPoint = await vehicleDataController.createVehicleData(vehicleData);
-  await mapPointController.saveMapPoint(newDataPoint);
 
   /*
    * create a new sentry, conditioning, or charge session if vehicle has moved since last session
@@ -259,6 +258,7 @@ const handleInnerLoop = async ({ job, teslaAccount, vehicle }: IJobData) => {
   }
 
   await vehicleDataController.saveVehicleData(newDataPoint);
+  await mapPointController.saveMapPoint(newDataPoint);
 };
 /** END LOOPS **/
 
