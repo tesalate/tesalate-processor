@@ -16,7 +16,7 @@
     {
       "name": "consumer",
       "script": "./dist/src/index.js",
-      "instances": "1",
+      "instances": "max",
       "autorestart": true,
       "watch": false,
       "time": false,

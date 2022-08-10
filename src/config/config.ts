@@ -12,12 +12,12 @@ const envVarsSchema = Joi.object()
     NODE_ENV: Joi.string().valid('production', 'development', 'test').required(),
     MONGODB_URL: Joi.string().required().description('Mongo DB url'),
     MONGODB_VERSION: Joi.string().default('5.0.6'),
-    REDIS_DB: Joi.number().default(0),
-    REDIS_HOST: Joi.string().default('localhost'),
-    REDIS_PORT: Joi.number().default(6379),
-    REDIS_USER: Joi.string().default('default').description('User for Redis'),
+    PROCESSOR_REDIS_DB: Joi.number().default(0),
+    PROCESSOR_REDIS_HOST: Joi.string().default('localhost'),
+    PROCESSOR_REDIS_PORT: Joi.number().default(6379),
+    PROCESSOR_REDIS_USER: Joi.string().default('default').description('User for Redis'),
+    PROCESSOR_REDIS_PASSWORD: Joi.string().default('').description('Password for Redis'),
     CACHE_TTL: Joi.number().default(30).description('How long data should be cached for in seconds'),
-    REDIS_PASSWORD: Joi.string().default('').description('Password for Redis'),
     REPEAT_JOB_INTERVAL: Joi.number()
       .integer()
       .min(0)
@@ -53,10 +53,10 @@ export default {
     version: envVars.MONGODB_VERSION,
   },
   redis: {
-    host: envVars.REDIS_HOST,
-    port: envVars.REDIS_PORT,
-    user: envVars.REDIS_USER,
-    password: envVars.REDIS_PASSWORD ?? null,
+    host: envVars.PROCESSOR_REDIS_HOST,
+    port: envVars.PROCESSOR_REDIS_PORT,
+    user: envVars.PROCESSOR_REDIS_USER,
+    password: envVars.PROCESSOR_REDIS_PASSWORD ?? null,
   },
   cache: {
     ttl: envVars.CACHE_TTL,
