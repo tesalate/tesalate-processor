@@ -4,6 +4,7 @@ import isEmpty from 'lodash/isEmpty';
 import config from '../config/config';
 import { getJobInstance } from './provider';
 import { JobImp } from './jobs/job.definition';
+import { cacheService } from '../services';
 import Logger from '../config/logger';
 
 const logger = Logger('worker');
@@ -11,6 +12,8 @@ const logger = Logger('worker');
 export interface WorkerReply {
   message: unknown;
 }
+
+export const primaryInstanceCacheKey = 'primary-active';
 
 export const defaultWorker = (queueName: string) => {
   const worker = new Worker<JobImp, WorkerReply>(
@@ -24,17 +27,18 @@ export const defaultWorker = (queueName: string) => {
       return { message: 'success' };
     },
     {
+      autorun: config.queue.primaryInstance,
       connection: config.redis,
       concurrency: config.queue.workers,
       skipDelayCheck: true,
       runRetryDelay: 1000 * 3,
-      settings: {
-        backoffStrategies: {
-          custom(attemptsMade: number) {
-            return Math.abs(attemptsMade * 1000);
-          },
-        },
-      },
+      // settings: {
+      //   backoffStrategies: {
+      //     custom(attemptsMade: number) {
+      //       return Math.abs(attemptsMade * 1000);
+      //     },
+      //   },
+      // },
     }
   );
 
@@ -43,7 +47,16 @@ export const defaultWorker = (queueName: string) => {
     instance?.failed(job);
     logger.error(`${job.id} has failed`);
   });
-  worker.on('active', async () => await worker.resume());
-  worker.on('paused', async () => await worker.resume());
+  worker.on('active', async () => {
+    logger.info('worker is active');
+    return await worker.resume();
+  });
+  worker.on('paused', async () => logger.info('pausing worker'));
   worker.on('progress', async () => await worker.resume());
+  worker.on('completed', async () => {
+    if (config.queue.primaryInstance) {
+      await cacheService.setCache(primaryInstanceCacheKey, true, config.queue.jobInterval * 2);
+    }
+  });
+  return worker;
 };

@@ -30,6 +30,7 @@ const envVarsSchema = Joi.object()
     TESLA_OWNER_API_URL: Joi.string().description('tesla owner api url').default('https://owner-api.teslamotors.com'),
     TESLA_OWNERAPI_CLIENT_ID: Joi.string().required(),
     TESLA_OWNERAPI_CLIENT_SECRET: Joi.string().required(),
+    PRIMARY_INSTANCE: Joi.boolean().default(true),
   })
   .unknown();
 
@@ -71,5 +72,6 @@ export default {
     workers: envVars.CONCURRENT_WORKERS,
     defaultQueueName: envVars.DEFAULT_QUEUE_NAME,
     jobInterval: envVars.REPEAT_JOB_INTERVAL,
+    primaryInstance: envVars.PRIMARY_INSTANCE,
   },
 };
