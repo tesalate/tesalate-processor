@@ -7,6 +7,7 @@ export const toFixedWithoutRounding = (num: number, fractionDigits: number) => {
     // as we don't need such small numbers anyway.
     num = 0;
   }
-  const re = new RegExp('^-?\\d+(?:.\\d{0,' + (fractionDigits || -1) + '})?');
-  return Number(num.toString(10).match(re)?.[0]);
+
+  const match = num.toString(10).match(`^-?\\d+(?:\\.\\d{0,${fractionDigits}})?`)?.[0] ?? '';
+  return parseFloat(match).toFixed(fractionDigits);
 };
