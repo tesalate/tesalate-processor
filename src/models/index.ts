@@ -5,3 +5,4 @@ export { default as Vehicle } from './vehicle.model';
 export { default as MapPoint } from './mapPoint.model';
 export { default as VehicleData } from './vehicleData.model';
 export { default as TeslaAccount } from './teslaAccount.model';
+export { default as Efficiency } from './efficiency.model';
