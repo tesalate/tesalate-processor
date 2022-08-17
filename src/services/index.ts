@@ -7,6 +7,7 @@ export { default as sessionService } from './session.service';
 export { default as chargerService } from './charger.service';
 export { default as vehicleService } from './vehicle.service';
 export { default as mapPointService } from './mapPoint.service';
+export { default as efficiencyService } from './efficiency.service';
 export { default as vehicleDataService } from './vehicleData.service';
 export { default as teslaAccountService } from './teslaAccount.service';
 export { default as changeStreamService } from './changeStream.service';

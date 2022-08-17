@@ -14,6 +14,7 @@ import {
   vehicleDataController,
   teslaAccountController,
   dataCollectorController,
+  efficiencyController,
 } from '../../controllers';
 import { JobImp, BaseJob } from './job.definition';
 
@@ -112,9 +113,10 @@ const handleInnerLoop = async ({ job, teslaAccount, vehicle }: IJobData) => {
   const { charge_state, climate_state, drive_state, vehicle_state } = vehicleData;
   const { is_preconditioning, is_climate_on, climate_keeper_mode, cabin_overheat_protection_actively_cooling } =
     climate_state;
+  const { charging_state, charge_miles_added_ideal, charge_energy_added, charge_limit_soc, charge_miles_added_rated } =
+    charge_state;
   const { center_display_state, sentry_mode } = vehicle_state;
   const { shift_state, longitude, latitude } = drive_state;
-  const { charging_state } = charge_state;
 
   /* CENTER DISPLAY STATES <center_display_state>
    * 0 Off
@@ -220,7 +222,23 @@ const handleInnerLoop = async ({ job, teslaAccount, vehicle }: IJobData) => {
   /* CHARGE_STATE states [ Charging, Complete, Disconnected, NoPower, Starting, Stopped ] */
   if (['charging', 'complete', 'nopower', 'starting', 'stopped'].includes(charging_state_lower)) {
     idle = false;
-    const id = vehicleHasMoved ? null : lastSavedDataPoint?.charge_session_id;
+
+    /* the following is true when a charge session completes,
+     * the vehicle is still plugged in, and the user raises
+     * the charge limit state of charge and the car starts a
+     * new charge sessions. I think. This whole check could be pointless.
+     */
+    const teslaStartedNewChargeSession =
+      lastSavedDataPoint?.charge_state?.charging_state?.toLowerCase() === 'complete' &&
+      lastSavedDataPoint?.charge_state?.charge_limit_soc < charge_limit_soc &&
+      lastSavedDataPoint?.charge_state?.charge_miles_added_ideal > 0 &&
+      lastSavedDataPoint?.charge_state?.charge_energy_added > 0 &&
+      ['charging', 'starting'].includes(charging_state_lower) &&
+      charge_miles_added_ideal === 0 &&
+      charge_energy_added === 0;
+
+    const id = vehicleHasMoved || teslaStartedNewChargeSession ? null : lastSavedDataPoint?.charge_session_id;
+
     const currentChargeSession = await sessionController.upsertSession(
       id,
       vehicle.user,
@@ -237,6 +255,7 @@ const handleInnerLoop = async ({ job, teslaAccount, vehicle }: IJobData) => {
     });
   }
 
+  /******** IDLE SESSION ********/
   /* car is parked and nothing is keeping it awake */
   if (idle) {
     const idleCacheKey = buildCacheKey(vehicle._id, `${SessionType['idle']}-session`);
@@ -257,8 +276,37 @@ const handleInnerLoop = async ({ job, teslaAccount, vehicle }: IJobData) => {
     });
   }
 
+  /******** SAVE VEHICLE DATA AND MAP POINT ********/
   await vehicleDataController.saveVehicleData(newDataPoint);
   await mapPointController.saveMapPoint(newDataPoint);
+
+  /******** UPSERT EFFICIENCY ********/
+  /* calculating what tesla thinks the vehicle's efficiency is when
+   * charge_energy_added is < 1 and charge_miles_added_rated is < 5
+   * is not accurate enough so skip the upsert for now
+   */
+  const saveEff =
+    lastSavedDataPoint?.charge_session_id &&
+    !newDataPoint.charge_session_id &&
+    charge_energy_added >= 1 &&
+    charge_miles_added_rated >= 5;
+
+  /* if the last saved data point has a charge session id
+   * and the new data point does not have a charge session id
+   * that means that the charge session most likely ended
+   * and we can upsert the efficiency doc for this vehicle
+   */
+  if (saveEff) {
+    await efficiencyController.upsertEfficiency(newDataPoint);
+  }
+
+  logger.debug('efficiency info', {
+    ...baseLogObj,
+    last: lastSavedDataPoint?.charge_session_id,
+    new: newDataPoint.charge_session_id,
+    charge_energy_added,
+    charge_miles_added_rated,
+  });
 };
 /** END LOOPS **/
 

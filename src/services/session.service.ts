@@ -66,7 +66,7 @@ const upsertSessionById = async (
       if (!vehicleData || isEmpty(vehicleData)) throw new Error('No vehicle data');
 
       const { drive_state, vehicle_state, charge_state } = vehicleData.toJSON() as IVehicleData;
-
+      const { charge_energy_added } = charge_state;
       const additionalData: Record<string, AggregateOptions | number> = {
         'sessionData.startingBatteryLevel': { $ifNull: ['$sessionData.startingBatteryLevel', charge_state.battery_level] },
         'sessionData.endingBatteryLevel': charge_state.battery_level,
@@ -84,7 +84,7 @@ const upsertSessionById = async (
       }
 
       if (type === SessionType['charge']) {
-        additionalData['sessionData.energyAdded'] = { $max: ['$sessionData.energyAdded', charge_state.charge_energy_added] };
+        additionalData['sessionData.energyAdded'] = { $max: ['$sessionData.energyAdded', charge_energy_added] };
         additionalData['sessionData.maxChargeRate'] = { $max: ['$sessionData.maxChargeRate', charge_state.charger_power] };
       }
 
@@ -142,13 +142,19 @@ const upsertSessionById = async (
       throw new Error(`Unhandled session type: '${type}'`);
     }
   }
+
   const endTime = performance.now();
 
-  logger.info(`${session.createdAt === session.updatedAt ? 'inserted' : 'updated'} session`, {
-    _id: session._id,
-    vehicle,
-    type: SessionType[type],
-  });
+  logger.info(
+    `${
+      new Date(session.createdAt).getTime() - new Date(session.updatedAt).getTime() === 0 ? 'inserted' : 'updated'
+    } session`,
+    {
+      _id: session._id,
+      vehicle,
+      type: SessionType[type],
+    }
+  );
 
   logger.debug(`call to upsertSessionById took ${endTime - startTime} milliseconds`);
   return session;
