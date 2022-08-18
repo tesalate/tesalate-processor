@@ -359,13 +359,18 @@ export class VehicleDataCollection extends BaseJob implements JobImp {
   // all thrown errors are handled here
   failed = async (job: Job): Promise<void> => {
     const _id = this.payload.vehicle;
+
     // if something throws an unrecoverable error, delete the cached values for this vehicle
     if (job.failedReason.toLowerCase().includes('unrecoverable')) {
       await cacheController.deleteCacheByPattern(`${_id}:*`);
-    } else {
-      // reset the loop to outer loop if any other error happens
+    }
+
+    if (job.failedReason.toLowerCase().includes('408')) {
+      logger.debug('vehicle is asleep', { _id });
+      // vehicle is asleep, reset to outer loop
       await cacheController.deleteCacheByPattern(`${_id}:loop`);
     }
+
     logger.error(`Job(${this.name}) with vehicle id ${_id} has failed`, {
       _id,
       failedReason: job.failedReason,

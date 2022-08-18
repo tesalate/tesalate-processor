@@ -22,11 +22,11 @@ export const defaultQueue = new Queue(defaultQueueName, {
     removeOnComplete: true,
     removeOnFail: true,
     // sizeLimit: 5242880,
-    // attempts: 2,
-    // backoff: {
-    //   type: 'exponential',
-    //   delay: 1000 * 3,
-    // },
+    attempts: 5,
+    backoff: {
+      type: 'fixed',
+      delay: 1000 * 1,
+    },
   },
 });
 
