@@ -20,10 +20,10 @@ const envVarsSchema = Joi.object()
     CACHE_TTL: Joi.number().default(30).description('How long data should be cached for in seconds'),
     REPEAT_JOB_INTERVAL: Joi.number()
       .integer()
-      .min(0)
+      .min(2)
       .max(10)
       .default(10)
-      .description('How often a job should repeat in seconds. value <= 10'),
+      .description('How often a job should repeat in seconds. 2 <= value <= 10'),
     DEFAULT_QUEUE_NAME: Joi.string().default('Vehicles'),
     CONCURRENT_WORKERS: Joi.number().default(os.cpus().length || 1),
     TESLA_OAUTH_V3_URL: Joi.string().description('tesla oauth v3 api url').default('https://auth.tesla.com/oauth2/v3'),

@@ -31,7 +31,7 @@ export const defaultWorker = (queueName: string) => {
       connection: config.redis,
       concurrency: config.queue.workers,
       skipDelayCheck: true,
-      runRetryDelay: 1000 * 3,
+      // runRetryDelay: 1000 * 1, // 1 second
       // settings: {
       //   backoffStrategies: {
       //     custom(attemptsMade: number) {
@@ -51,7 +51,10 @@ export const defaultWorker = (queueName: string) => {
     logger.info('worker is active');
     return await worker.resume();
   });
-  worker.on('paused', async () => logger.info('pausing worker'));
+  worker.on('paused', async () => {
+    logger.info('pausing worker');
+    if (config.queue.primaryInstance) await worker.resume();
+  });
   worker.on('progress', async () => await worker.resume());
   worker.on('completed', async () => {
     if (config.queue.primaryInstance) {
