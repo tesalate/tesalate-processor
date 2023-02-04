@@ -2,21 +2,45 @@
 version: '3.9'
 
 services:
-  processor:
+  producer:
     image: devintyler2626/tesalate-processor:latest
     build: .
     env_file:
       - .env
+    environment:
+      - APP_TYPE=producer
     depends_on:
       - mongodb
+      - redis
+    links:
+      - redis
+      - mongodb
+    volumes:
+      - ./logs:/home/node/app/logs
+    networks:
+      - node-network
+
+  consumer:
+    image: devintyler2626/tesalate-processor:latest
+    build: .
+    env_file:
+      - .env
+    environment:
+      - APP_TYPE=consumer
+    depends_on:
+      - mongodb
+      - redis
+      - producer
+    links:
       - redis
     volumes:
       - ./logs:/home/node/app/logs
     networks:
       - node-network
 
+
   mongodb:
-    image: mongo:5.0.6
+    image: mongo:4.4
     ports:
       - '27021:27017'
     volumes:
@@ -27,15 +51,18 @@ services:
   redis:
     image: redis:6.2-alpine
     restart: always
+    env_file:
+      - .env
     ports:
-      - '${REDIS_PORT}:6379'
+      - '6379'
     healthcheck:
-      test: ["cmd", "redis-cli", "ping"]
+      test: redis-cli ping
       timeout: 5s
       retries: 5
-    command: redis-server --save 20 1 --loglevel warning
+    networks:
+      - node-network
     volumes: 
-      - redis:/data
+      - dbdata:/data
 
 volumes:
   dbdata:

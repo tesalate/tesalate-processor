@@ -10,7 +10,7 @@ USER node
 COPY --chown=node:node . .
 RUN yarn
 RUN rimraf dist/
-RUN tsc -b
+RUN tsc -p ./tsconfig.build.json
 
 # STAGE 2
 FROM node:18.6.0-alpine as ts-remover
@@ -25,7 +25,6 @@ RUN yarn install --production
 FROM node:18.6.0-alpine
 RUN apk add --no-cache --upgrade bash
 WORKDIR /home/node/app
-# COPY ecosystem.config.json wait-for-it.sh ./
-COPY ecosystem.config.json ./
+COPY ecosystem.config.json wait-for-it.sh ./
 COPY --from=ts-remover /home/node/app/ ./
 CMD yarn start
