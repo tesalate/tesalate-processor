@@ -9,9 +9,9 @@ export const loops = {
 } as const;
 
 type Keys = keyof typeof loops;
-export type Values = typeof loops[Keys];
+export type LoopType = typeof loops[Keys];
 
-const getLoop = async (vehicle: string): Promise<string> => {
+const getLoop = async (vehicle: string): Promise<LoopType> => {
   const cacheKey = buildCacheKey(vehicle, key);
   const cachedLoop = await cacheService.getCache(cacheKey);
   if (cachedLoop) {
@@ -23,9 +23,9 @@ const getLoop = async (vehicle: string): Promise<string> => {
   return loops.outer;
 };
 
-const setLoop = async (vehicle: string, value: Values) => {
+const setLoop = async (vehicle: string, loopType: LoopType) => {
   const cacheKey = buildCacheKey(vehicle, key);
-  await cacheService.setCache(cacheKey, value, ttl);
+  await cacheService.setCache(cacheKey, loopType, ttl);
 };
 
 const setLoopExpiration = async (vehicle: string) => {

@@ -1,22 +1,22 @@
 import Logger from '../config/logger';
 import { dataCollectorService } from '../services';
-import { Values as loopValues } from '../services/dataCollector.service';
+import { loops, LoopType } from '../services/dataCollector.service';
 
 const logger = Logger('dataCollector.controller');
 
-const getLoop = async (vehicle: string) => {
+const getLoop = async (vehicle: string): Promise<LoopType> => {
   try {
     const loop = await dataCollectorService.getLoop(vehicle);
     return loop;
   } catch (error) {
     logger.error('error getting loop', error);
-    return;
+    return loops.outer;
   }
 };
 
-const setLoop = async (vehicle: string, value: loopValues) => {
+const setLoop = async (vehicle: string, loopType: LoopType) => {
   try {
-    await dataCollectorService.setLoop(vehicle, value);
+    await dataCollectorService.setLoop(vehicle, loopType);
   } catch (error) {
     logger.error('error setting loop', error);
     return;

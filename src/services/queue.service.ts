@@ -1,6 +1,6 @@
 import { IVehicle } from '../models/vehicle.model';
 import { defaultQueue, defaultRepeatJobOpts } from '../queue/queue';
-import { VehicleDataCollection } from '../queue/jobs';
+import { VehicleDataCollection /*, VehicleDataEmail */ } from '../queue/jobs';
 
 const getJobsFromQueue = async () => {
   return await defaultQueue.getRepeatableJobs();
@@ -11,6 +11,13 @@ const addVehicleToQueue = async (id: string) => {
     ...defaultRepeatJobOpts,
     jobId: id,
   });
+  // await defaultQueue.add(id, new VehicleDataEmail({ vehicle: id }), {
+  //   ...defaultRepeatJobOpts,
+  //   repeat: {
+  //     pattern: '0 19 * * SUN',
+  //   },
+  //   jobId: `${id}-email`,
+  // });
 };
 
 const removeVehicleFromQueue = async (key: string) => {

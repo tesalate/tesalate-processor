@@ -35,7 +35,7 @@ const fetchVehicleDataFromTesla = async (
   vehicle: string,
   id_s: string
 ): Promise<IVehicleData> => {
-  const startTime = performance.now();
+  // const startTime = performance.now();
 
   const {
     data: { response },
@@ -46,8 +46,9 @@ const fetchVehicleDataFromTesla = async (
       'x-vehicle': vehicle,
     },
   });
-  const endTime = performance.now();
-  logger.debug(`call to fetchVehicleDataFromTesla took ${endTime - startTime} milliseconds`);
+  // const endTime = performance.now();
+  logger.debug('### TESLA RESPONSE ###', response);
+  // logger.debug(`call to fetchVehicleDataFromTesla took ${endTime - startTime} milliseconds`);
   return response;
 };
 

@@ -1,6 +1,7 @@
 import { IUser } from './user.model';
 import { IVehicle } from './vehicle.model';
 import { ITeslaAccount } from './teslaAccount.model';
+import { LoopType } from '../services/dataCollector.service';
 
 export enum GeoJSONType {
   point = 'Point',
@@ -60,10 +61,9 @@ export interface IVehicleDataCollectionPayload extends Omit<IVehicle, '_id' | 't
 export type IPartialTeslaAccount = Omit<ITeslaAccount, 'linked' | 'email' | 'createdAt' | 'updatedAt'>;
 
 interface IJobData {
-  job: Job;
-  teslaAccount: IPartialTeslaAccount;
+  teslaAccount: ITeslaAccount;
   vehicle: IVehicle;
-  loopCacheKey: string;
+  loop: LoopType;
 }
 
 interface IVehicleJobPayload {

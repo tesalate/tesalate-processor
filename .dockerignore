@@ -1,3 +1,5 @@
 dist
 tests
 .travis
+__mocks__
+node_modules

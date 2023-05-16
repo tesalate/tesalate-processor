@@ -8,7 +8,6 @@ import { ISession } from '../models/session.model';
 import { buildCacheKey } from '../utils/formatFuncs';
 import { SessionType } from '../models/session.model';
 import Logger from '../config/logger';
-import config from '../config/config';
 import { IVehicleData } from '../models/vehicleData.model';
 
 const logger = Logger('session.service');
@@ -21,7 +20,8 @@ const upsertSessionById = async (
   user: string,
   vehicle: string,
   type: SessionType,
-  vehicleData?: Document
+  vehicleData?: Document,
+  interval?: number | undefined
 ): Promise<ISession> => {
   const query = { _id: _id ?? new mongoose.Types.ObjectId() };
   let session;
@@ -41,7 +41,7 @@ const upsertSessionById = async (
             type,
             user,
             metadata: {
-              interval: config.queue.jobInterval,
+              interval,
             },
             createdAt: now,
           },
@@ -104,7 +104,7 @@ const upsertSessionById = async (
                 $ifNull: [
                   '$metadata',
                   {
-                    interval: config.queue.jobInterval,
+                    interval,
                   },
                 ],
               },

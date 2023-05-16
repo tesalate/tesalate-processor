@@ -44,6 +44,7 @@ const Logger = (module: string) => {
         filename: './logs/error.log',
         level: 'error',
         format: combine(metadata(), json(), timestamp()),
+        options: { flags: 'w' },
       }),
     ],
   });

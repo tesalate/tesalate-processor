@@ -1,9 +1,13 @@
 import { plainToInstance } from 'class-transformer';
 import { JobImp } from './jobs/job.definition';
 import { VehicleDataCollection } from './jobs';
+import { VehicleDataEmail } from './jobs/vehicle-data-email.job';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const JobDictionary = new Map<string, any>([[VehicleDataCollection.name, VehicleDataCollection]]);
+export const JobDictionary = new Map<string, any>([
+  [VehicleDataCollection.name, VehicleDataCollection],
+  [VehicleDataEmail.name, VehicleDataEmail],
+]);
 
 export const getJobInstance = (data: JobImp): JobImp => {
   const jobClass = JobDictionary.get(data.name);

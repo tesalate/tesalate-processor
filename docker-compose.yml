@@ -2,6 +2,24 @@
 version: '3.9'
 
 services:
+  processor:
+    image: devintyler2626/tesalate-processor:latest
+    build: .
+    env_file:
+      - .env
+    environment:
+      - APP_TYPE=producer
+    depends_on:
+      - mongodb
+      - redis
+    links:
+      - redis
+      - mongodb
+    volumes:
+      - ./logs:/home/node/app/logs
+    networks:
+      - node-network
+
   producer:
     image: devintyler2626/tesalate-processor:latest
     build: .

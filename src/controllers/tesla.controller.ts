@@ -33,6 +33,7 @@ const getVehicleData = async (
   } catch (error) {
     const axiosError = error as AxiosError;
     logger.error('error getting vehicle data from tesla', {
+      ...axiosError,
       status: axiosError?.response?.status,
       data: axiosError?.response?.data,
     });

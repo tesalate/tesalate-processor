@@ -23,29 +23,25 @@ export const defaultWorker = (queueName: string) => {
       if (isEmpty(instance)) {
         throw new Error(`Unable to find Job: ${job.data.name}`);
       }
+
       await instance.handle(job);
+
       return { message: 'success' };
     },
     {
       autorun: config.queue.primaryInstance,
       connection: config.redis,
       concurrency: config.queue.workers,
-      skipDelayCheck: true,
-      // runRetryDelay: 1000 * 1, // 1 second
-      // settings: {
-      //   backoffStrategies: {
-      //     custom(attemptsMade: number) {
-      //       return Math.abs(attemptsMade * 1000);
-      //     },
-      //   },
-      // },
     }
   );
-
-  worker.on('failed', (job: Job) => {
-    const instance = getJobInstance(job.data);
-    instance?.failed(job);
-    logger.error(`${job.id} has failed`);
+  worker.on('failed', async (job: Job<JobImp, WorkerReply, string> | undefined, error: Error, _prev: string) => {
+    if (job) {
+      const instance = getJobInstance(job.data);
+      instance?.failed(job);
+      logger.error(`${job.id} has failed`);
+    } else {
+      logger.error(`Job failed with error: ${error.message}`);
+    }
   });
   worker.on('active', async () => {
     logger.info('worker is active');

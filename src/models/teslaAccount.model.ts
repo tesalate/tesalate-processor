@@ -2,7 +2,7 @@ import mongoose, { Schema } from 'mongoose';
 import { objectIdToString } from './plugins';
 
 export interface ITeslaAccount {
-  _id: string;
+  _id: string | undefined;
   user: string;
   vehicles: string[];
   access_token: string;

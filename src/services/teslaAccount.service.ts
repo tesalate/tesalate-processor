@@ -8,7 +8,7 @@ const ttl = 60;
 const key = 'tesla-account';
 const keys = ['_id', 'access_token', 'refresh_token', 'user'];
 
-const getTeslaAccountById = async (_id: string, vehicle: string): Promise<Partial<ITeslaAccount> | null> => {
+const getTeslaAccountById = async (_id: string, vehicle: string) => {
   const cacheKey = buildCacheKey(vehicle, key);
   const cachedValue = await cacheService.getCache(cacheKey);
   if (cachedValue) {
@@ -19,7 +19,7 @@ const getTeslaAccountById = async (_id: string, vehicle: string): Promise<Partia
   if (account) {
     await cacheService.setCache(cacheKey, account, ttl);
   }
-  return account;
+  return account as ITeslaAccount;
 };
 
 const updateTeslaAccountById = async (

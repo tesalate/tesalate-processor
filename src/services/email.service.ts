@@ -12,6 +12,12 @@ const sendDataCollectionStoppedEmail = async (teslaAccount: Partial<ITeslaAccoun
   }
 };
 
+const sendEndOfWeekEmail = async (teslaAccount: Partial<ITeslaAccount>, vehicle: string): Promise<void> => {
+  const endpoint = `/v1/tesla-account/send-end-of-week-email?teslaAccountId=${teslaAccount._id}&userId=${teslaAccount.user}&vehicle=${vehicle}`;
+  await appApi.post(endpoint);
+};
+
 export default {
   sendDataCollectionStoppedEmail,
+  sendEndOfWeekEmail,
 };

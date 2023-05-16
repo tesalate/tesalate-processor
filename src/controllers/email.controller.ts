@@ -16,6 +16,18 @@ const sendDataCollectionStoppedEmail = async (teslaAccount: Partial<ITeslaAccoun
   }
 };
 
+const sendEndOfWeekEmail = async (teslaAccount: Partial<ITeslaAccount>, vehicle: string) => {
+  try {
+    logger.debug('sending dc stopped email', { teslaAccount });
+    await emailService.sendEndOfWeekEmail(teslaAccount, vehicle);
+    logger.debug('sent dc stopped email');
+  } catch (error) {
+    logger.error('data collection stop email error', { error: (error as AxiosError)?.response?.data });
+    throw error;
+  }
+};
+
 export default {
   sendDataCollectionStoppedEmail,
+  sendEndOfWeekEmail,
 };

@@ -11,10 +11,11 @@ const upsertSession = async (
   user: string,
   vehicle: string,
   type: SessionType,
-  vehicleData?: Document
+  vehicleData?: Document,
+  interval?: number | undefined
 ) => {
   try {
-    const session = await sessionService.upsertSessionById(_id, user, vehicle, type, vehicleData);
+    const session = await sessionService.upsertSessionById(_id, user, vehicle, type, vehicleData, interval);
     return session;
   } catch (error) {
     logger.error(`error updating ${type} session`, error);

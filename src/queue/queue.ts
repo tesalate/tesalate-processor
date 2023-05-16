@@ -1,4 +1,4 @@
-import { Queue, QueueScheduler } from 'bullmq';
+import { Queue } from 'bullmq';
 
 import { cacheService } from '../services';
 import config from '../config/config';
@@ -22,20 +22,15 @@ export const defaultQueue = new Queue(defaultQueueName, {
     removeOnComplete: true,
     removeOnFail: true,
     // sizeLimit: 5242880,
-    attempts: 5,
+    attempts: 3,
     backoff: {
-      type: 'fixed',
-      delay: 1000 * 1,
+      type: 'exponential',
+      delay: 1000,
     },
   },
 });
 
 export async function setupBullMQProcessor(queueName: string = defaultQueueName) {
-  const queueScheduler = new QueueScheduler(queueName, {
-    connection: { ...config.redis },
-  });
-
-  await queueScheduler.waitUntilReady();
   const worker = defaultWorker(queueName);
 
   if (!config.queue.primaryInstance) {
