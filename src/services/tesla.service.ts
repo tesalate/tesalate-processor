@@ -24,6 +24,8 @@ const fetchVehiclesFromTesla = async (
       'x-vehicle': vehicle,
     },
   });
+  // logger.debug(`call to fetchVehiclesFromTesla ${JSON.stringify(response)}`);s
+
   const res = id_s ? response.filter((curr: TeslaVehiclesResponse) => curr.id_s === id_s) : response;
   const endTime = performance.now();
   logger.debug(`call to fetchVehiclesFromTesla took ${endTime - startTime} milliseconds`);
@@ -39,13 +41,16 @@ const fetchVehicleDataFromTesla = async (
 
   const {
     data: { response },
-  } = await ownerApi.get(`/api/1/vehicles/${id_s}/vehicle_data`, {
-    headers: {
-      Authorization: `Bearer ${teslaAccount.access_token}`,
-      'x-teslaAccount': JSON.stringify(teslaAccount),
-      'x-vehicle': vehicle,
-    },
-  });
+  } = await ownerApi.get(
+    `/api/1/vehicles/${id_s}/vehicle_data?endpoints=charge_state%3Bclimate_state%3Bclosures_state%3Bdrive_state%3Bgui_settings%3Blocation_data%3Bvehicle_config%3Bvehicle_state`,
+    {
+      headers: {
+        Authorization: `Bearer ${teslaAccount.access_token}`,
+        'x-teslaAccount': JSON.stringify(teslaAccount),
+        'x-vehicle': vehicle,
+      },
+    }
+  );
   // const endTime = performance.now();
   logger.debug('### TESLA RESPONSE ###', response);
   // logger.debug(`call to fetchVehicleDataFromTesla took ${endTime - startTime} milliseconds`);
